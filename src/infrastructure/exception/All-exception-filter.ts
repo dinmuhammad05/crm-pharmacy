@@ -6,7 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { winstonConfig } from '../winston/winston.config'; 
+import { winstonConfig } from '../winston/winston.config';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
@@ -15,7 +15,7 @@ export class AllExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
-    
+
     // Statusni aniqlash
     const status =
       exception instanceof HttpException
@@ -41,11 +41,12 @@ export class AllExceptionFilter implements ExceptionFilter {
       }
     } else {
       // Agar HttpException bo'lmasa (masalan, kod xatosi), error message ni original xatodan olamiz
-      errorMessage = exception instanceof Error ? exception.message : String(exception);
+      errorMessage =
+        exception instanceof Error ? exception.message : String(exception);
     }
 
     // --- LOG YOZISH QISMI ---
-    
+    console.log('exceptiondannnn',exception)
     // Agar serverda jiddiy xato (500) bo'lsa, Error faylga yozamiz
     if (status === 500) {
       this.logger.error(
@@ -55,7 +56,9 @@ export class AllExceptionFilter implements ExceptionFilter {
     } else {
       // Boshqa xatolarni (400, 404 va h.k.) shunchaki warning yoki info sifatida yozish mumkin
       // Bu qism ixtiyoriy, agar faqat 500 kerak bo'lsa, buni o'chirib tashlang.
-      this.logger.warn(`Handled Exception | Status: ${status} | Message: ${errorMessage}`);
+      this.logger.warn(
+        `Handled Exception | Status: ${status} | Message: ${errorMessage}`,
+      );
     }
 
     const errorResponse = {

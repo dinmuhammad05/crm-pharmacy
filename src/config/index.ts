@@ -21,7 +21,7 @@ interface IConfig {
     HOST: string;
     PORT: number;
     PASSWORD: string;
-  }
+  };
   UPLOAD_FOLDER: string;
 }
 
@@ -45,5 +45,5 @@ export const appConfig: IConfig = {
     HOST: String(process.env.REDIS_HOST),
     PORT: Number(process.env.REDIS_PORT),
     PASSWORD: String(process.env.REDIS_PASSWORD),
-  }
+  },
 };

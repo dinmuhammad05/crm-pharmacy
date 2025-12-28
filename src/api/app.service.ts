@@ -41,12 +41,14 @@ class AppService {
     app.useGlobalFilters(new AllExceptionFilter());
 
     app.useLogger(['log', 'error', 'warn', 'debug', 'verbose']);
+    const rootPath = process.cwd();
+    const uploadFolderName = appConfig.UPLOAD_FOLDER; // masalan 'uploads'
+    const staticFilesPath = join(rootPath, uploadFolderName);
 
-    const staticFile = join(__dirname, `../${appConfig.UPLOAD_FOLDER}`);
-    console.log(join(__dirname, `../${appConfig.UPLOAD_FOLDER}`));
+    // static files
     app.use(
-      `/${globalPrefix}/${appConfig.UPLOAD_FOLDER}`,
-      express.static(staticFile),
+      `/${globalPrefix}/${uploadFolderName}`, // /api/v1/uploads
+      express.static(staticFilesPath),
     );
 
     // validation pipe
@@ -77,7 +79,11 @@ class AppService {
     const config = new DocumentBuilder()
       .setTitle('CRM School API')
       .setDescription('The CRM School API description')
-      .setContact('Github', 'https://github.com/dinmuhammad05', 'qosimovmirjalol829@gmail.com')
+      .setContact(
+        'Github',
+        'https://github.com/dinmuhammad05',
+        'qosimovmirjalol829@gmail.com',
+      )
       .setVersion('1.0')
       .addTag('my-project')
       .addBearerAuth({

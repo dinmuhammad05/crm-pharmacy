@@ -12,7 +12,6 @@ export const CookieGetter = createParamDecorator(
     try {
       const request = context.switchToHttp().getRequest();
       const refreshToken = request.cookies[data];
-      // console.log('CookieGetter', data, request.cookies);
       if (!refreshToken) {
         throw new HttpException('Authorization error', 401);
       }

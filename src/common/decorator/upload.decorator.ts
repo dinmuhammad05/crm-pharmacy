@@ -1,9 +1,12 @@
 import { applyDecorators, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { multerOptions } from 'src/infrastructure/fileservice/multer.utils';
+import { multerOptions } from 'src/infrastructure/fileService/multer-utils';
 
-export function ApiImageFile(fieldName: string = 'file', required: boolean = false) {
+export function ApiImageFile(
+  fieldName: string = 'file',
+  required: boolean = false,
+) {
   return applyDecorators(
     UseInterceptors(FileInterceptor(fieldName, multerOptions)),
     ApiConsumes('multipart/form-data'),

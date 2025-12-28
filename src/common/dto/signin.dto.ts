@@ -7,8 +7,6 @@ import {
   Matches,
 } from 'class-validator';
 
-
-
 export class SigninDto {
   @ApiProperty({
     type: String,
@@ -29,9 +27,5 @@ export class SigninDto {
   @IsNotEmpty({ message: "password bo'sh bo'lmasligi kerak" })
   password: string;
 
-  @ApiProperty({
-    type: String,
-  })
-  @IsNotEmpty()
-  role: string;
+
 }

@@ -2,6 +2,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { appConfig } from './../config';
 import { JwtModule } from '@nestjs/jwt';
+import { AdminModule } from './admin/admin.module';
+import { MedicinesModule } from './medicine/medicine.module';
+import { CreditModule } from './credit/credit.module';
+import { DailyIncomeModule } from './daily-income/daily-income.module';
+import { ExpenseModule } from './expense/expense.module';
+import { SalesModule } from './sales/sales.module';
+import { ShiftModule } from './shift/shift.module';
+import { StatistikaModule } from './statistika/statistika.module';
 
 @Module({
   imports: [
@@ -34,6 +42,15 @@ import { JwtModule } from '@nestjs/jwt';
       },
     }),
     JwtModule.register({ global: true }),
+    AdminModule,
+    MedicinesModule,
+    CreditModule,
+    DailyIncomeModule,
+    ExpenseModule,
+    SalesModule,
+    ShiftModule,
+    StatistikaModule,
+    
   ],
   controllers: [],
   providers: [

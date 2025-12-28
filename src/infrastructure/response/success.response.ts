@@ -1,4 +1,4 @@
-import { ISuccess } from '../pagination/successResponse';
+import { ISuccess } from 'src/common/interface/ISuccess';
 
 export const successRes = (data: any, statusCode: number = 200): ISuccess => {
   return {

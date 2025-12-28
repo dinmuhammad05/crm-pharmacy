@@ -26,7 +26,6 @@ export class PaginationQueryDto {
     example: 10,
     description: 'Items per page (default: 10)',
   })
-  
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
