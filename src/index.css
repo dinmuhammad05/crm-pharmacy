@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+
+
+/* ACTIVE MENU ITEM COLOR */
+.ant-menu-dark.ant-menu-inline .ant-menu-item-selected {
+  background: rgba(20, 184, 166, 0.25) !important; /* teal */
+  color: #ecfeff !important;
+}
+
+/* ICON COLOR */
+.ant-menu-dark.ant-menu-inline .ant-menu-item-selected .anticon,
+.ant-menu-dark.ant-menu-inline .ant-menu-item-selected svg {
+  color: #ecfeff !important;
+}
+
+/* HOVER PAYTIDA HAM KO‘K BO‘LIB KETMASIN */
+.ant-menu-dark.ant-menu-inline .ant-menu-item:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ecfeff !important;
+}
