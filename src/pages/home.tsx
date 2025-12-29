@@ -24,7 +24,7 @@ import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
-export const Home: React.FC = () => {
+const Home: React.FC = () => {
   const { data, isLoading } = useStatistics();
 
   if (isLoading)
@@ -235,3 +235,5 @@ export const Home: React.FC = () => {
     </div>
   );
 };
+
+export default Home;

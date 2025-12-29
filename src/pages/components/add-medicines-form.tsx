@@ -86,9 +86,6 @@ const AddMedicinesForm: React.FC = () => {
           <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-[#059669] to-[#0d9488] bg-clip-text text-transparent mb-2">
             Dorilar Qo'shish
           </h1>
-          <p className="text-sm sm:text-base text-[#374151]">
-            Redux orqali saqlangan holda bir nechta dori qo'shing
-          </p>
         </div>
 
         <div className="space-y-4 mb-8">

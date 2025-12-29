@@ -20,7 +20,7 @@ import {
   type User,
 } from '../store/userSlice';
 
-export  function AdminSettingsPage() {
+export default function AdminSettingsPage() {
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();

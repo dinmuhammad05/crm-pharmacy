@@ -6,7 +6,7 @@ import { Button, Form, Input } from "antd"
 import Cookies from "js-cookie"
 import { Pill, ShieldCheck, Hospital } from "lucide-react"
 
-export const Login = () => {
+ const Login = () => {
   const { mutate, contextHolder } = useLoginMutation()
 
   const onSubmit = (data: ILoginData) => {
@@ -159,3 +159,5 @@ export const Login = () => {
     </div>
   )
 }
+
+export default Login

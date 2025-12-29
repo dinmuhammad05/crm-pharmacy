@@ -1,6 +1,7 @@
 import UploadExcellForm from "./components/upload-excell"
-export const UploadExcell = () => {
+const UploadExcell = () => {
   return (
     <div>{<UploadExcellForm />}</div>
   )
 }
+export default UploadExcell;

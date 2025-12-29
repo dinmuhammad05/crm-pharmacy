@@ -1,12 +1,12 @@
-import { useNavigate } from "react-router-dom";
-import MedicinesTable from "./components/medicine-table";
+import MedicinesTable from './components/medicine-table';
 
-export const Medicine = () => {
-  const navigate = useNavigate();
+const Medicine = () => {
   const handleClick = () => {
     // navigate("/medicine-create");
-    console.log("clicked");
+    console.log('clicked');
   };
 
   return <div>{<MedicinesTable handleClick={handleClick} />}</div>;
 };
+
+export default Medicine;

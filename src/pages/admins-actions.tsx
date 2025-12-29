@@ -31,7 +31,7 @@ import { BASE_URL } from '../config';
 
 const { Title, Text } = Typography;
 
-export const AdminManagementPage: React.FC = () => {
+const AdminManagementPage: React.FC = () => {
   const {
     useGetAllAdmins,
     useCreateAdmin,
@@ -378,3 +378,6 @@ export const AdminManagementPage: React.FC = () => {
     </div>
   );
 };
+
+
+export default AdminManagementPage;

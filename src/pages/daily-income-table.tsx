@@ -28,7 +28,7 @@ import type { IDailyIncome } from './type';
 
 const { Text } = Typography;
 
-export const DailyIncomeTable: React.FC = () => {
+const DailyIncomeTable: React.FC = () => {
   // --- State boshqaruvi (Logika o'zgarishsiz qoldi) ---
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -315,3 +315,5 @@ export const DailyIncomeTable: React.FC = () => {
     </div>
   );
 };
+
+export default DailyIncomeTable;

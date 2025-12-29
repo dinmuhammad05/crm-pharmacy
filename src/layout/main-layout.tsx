@@ -46,23 +46,6 @@ const MainLayout: React.FC = () => {
     return <Navigate to="/login" replace={true} />;
   }
 
-  // Aktiv menu itemni aniqlash
-  const getSelectedKey = () => {
-    const path = location.pathname;
-    if (path === '/') return '1';
-    if (path.includes('/medicines')) return '2';
-    if (path.includes('/debtors')) return '3';
-    if (path.includes('/create-medicines')) return '4';
-    if (path.includes('/sale')) return '5';
-    if (path.includes('/upload-excel')) return '6';
-    if (path.includes('/daily-income')) return '7';
-    if (path.includes('/daily-sales')) return '8';
-    if (path.includes('/admin-actions')) return '9';
-    if (path.includes('/sales-history')) return '10';
-
-    return '0';
-  };
-
   // Logout funksiyasi
   const handleLogout = () => {
     mutate();
@@ -91,6 +74,60 @@ const MainLayout: React.FC = () => {
       icon: <LogoutOutlined />,
       danger: true,
       onClick: handleLogout,
+    },
+  ];
+
+  // Menu elementlari - Keylar endi path bilan bir xil
+  const menuItems = [
+    {
+      key: '/',
+      icon: <HomeOutlined className="text-lg" />,
+      label: <span className="font-medium">Home</span>,
+    },
+    {
+      key: '/medicines',
+      icon: <MedicineBoxOutlined className="text-lg" />,
+      label: <span className="font-medium">Dorilar</span>,
+    },
+    {
+      key: '/debtors',
+      icon: <Users className="w-4 h-4" />,
+      label: <span className="font-medium">Qarzdorlar</span>,
+    },
+    {
+      key: '/create-medicines',
+      icon: <Tablets className="w-4 h-4" />,
+      label: <span className="font-medium">Dorilar yaratish</span>,
+    },
+    {
+      key: '/sale',
+      icon: <ShoppingCartOutlined className="w-4 h-4" />,
+      label: <span className="font-medium">Sotish</span>,
+    },
+    {
+      key: '/upload-excel',
+      icon: <FileExcelOutlined className="text-lg" />,
+      label: <span className="font-medium">Exceldan yuklash</span>,
+    },
+    {
+      key: '/daily-income',
+      icon: <DollarCircleOutlined />,
+      label: <span className="font-medium">Kunlik daromad</span>,
+    },
+    {
+      key: '/daily-sales',
+      icon: <DollarCircleFilled />,
+      label: <span className="font-medium">Kunlik savdo</span>,
+    },
+    {
+      key: '/admin-actions',
+      icon: <UsersIcon className="w-4 h-4" />,
+      label: <span className="font-medium">Adminlar</span>,
+    },
+    {
+      key: '/sales-history',
+      icon: <HistoryOutlined />,
+      label: <span className="font-medium">Smenalar tarixi</span>,
     },
   ];
 
@@ -135,94 +172,11 @@ const MainLayout: React.FC = () => {
         <Menu
           theme="dark"
           mode="inline"
-          selectedKeys={[getSelectedKey()]}
+          selectedKeys={[location.pathname]}
           className="border-none bg-transparent"
-          style={{
-            background: 'transparent',
-          }}
-          items={[
-            {
-              key: '1',
-              icon: <HomeOutlined className="text-lg" />,
-              label: <span className="font-medium">Home</span>,
-              onClick: () => navigate('/'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            {
-              key: '2',
-              icon: <MedicineBoxOutlined className="text-lg" />,
-              label: <span className="font-medium">Dorilar</span>,
-              onClick: () => navigate('/medicines'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            {
-              key: '3',
-              icon: <Users className="w-4 h-4" />,
-              label: <span className="font-medium">Qarzdorlar</span>,
-              onClick: () => navigate('/debtors'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            {
-              key: '4',
-              icon: <Tablets className="w-4 h-4" />,
-              label: <span className="font-medium">Dorilar yaratish</span>,
-              onClick: () => navigate('/create-medicines'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            {
-              key: '5',
-              icon: <ShoppingCartOutlined className="w-4 h-4" />,
-              label: <span className="font-medium">Sotish</span>,
-              onClick: () => navigate('/sale'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            {
-              key: '6',
-              icon: <FileExcelOutlined className="text-lg" />,
-              label: <span className="font-medium">Exceldan yuklash</span>,
-              onClick: () => navigate('/upload-excel'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            {
-              key: '7',
-              icon: <DollarCircleOutlined />,
-              label: <span className="font-medium">Kunlik daromad</span>,
-              onClick: () => navigate('/daily-income'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            // shift uzbek tilida
-            {
-              key: '8',
-              icon: <DollarCircleFilled />,
-              label: <span className="font-medium">Kunlik savdo</span>,
-              onClick: () => navigate('/daily-sales'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            {
-              key: '9',
-              icon: <UsersIcon />,
-              label: <span className="font-medium">Adminlar</span>,
-              onClick: () => navigate('/admin-actions'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-            {
-              key: '10',
-              icon: <HistoryOutlined />,
-              label: <span className="font-medium">Smenalar tarixi</span>,
-              onClick: () => navigate('/sales-history'),
-              className:
-                'hover:bg-white/10 transition-all duration-200 rounded-lg mx-2 my-1',
-            },
-          ]}
+          style={{ background: 'transparent' }}
+          items={menuItems}
+          onClick={({ key }) => navigate(key)}
         />
       </Sider>
 

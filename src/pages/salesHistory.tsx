@@ -28,7 +28,7 @@ import type {
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
-export const ShiftHistoryPage: React.FC = () => {
+const ShiftHistoryPage: React.FC = () => {
   const [queryParams, setQueryParams] = useState<ShiftQueryParams>({
     page: 1,
     pageSize: 10,
@@ -262,3 +262,6 @@ const Avatar = ({ size, icon }: any) => (
     {icon}
   </div>
 );
+
+
+export default ShiftHistoryPage;

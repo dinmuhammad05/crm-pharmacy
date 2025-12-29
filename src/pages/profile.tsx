@@ -26,7 +26,7 @@ import { useAdminProfile } from './service/mutation/useAdmin';
 
 const { Title, Text } = Typography;
 
-export const ProfilePage: React.FC = () => {
+const ProfilePage: React.FC = () => {
   const { data, isLoading, error } = useAdminProfile();
   const navigate = useNavigate();
 
@@ -207,3 +207,5 @@ export const ProfilePage: React.FC = () => {
     </div>
   );
 };
+
+export default ProfilePage;

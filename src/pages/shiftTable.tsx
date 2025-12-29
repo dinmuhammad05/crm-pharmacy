@@ -25,7 +25,7 @@ import type { IShift } from './type';
 
 const { Text, Title } = Typography;
 
-export const ShiftTable: React.FC = () => {
+const ShiftTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchDate, setSearchDate] = useState<string | undefined>();
@@ -212,3 +212,5 @@ export const ShiftTable: React.FC = () => {
     </div>
   );
 };
+
+export default ShiftTable;
