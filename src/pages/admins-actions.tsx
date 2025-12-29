@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   Table,
@@ -28,10 +30,12 @@ import {
   type IAdmin,
 } from './service/mutation/useAdminActions';
 import { BASE_URL } from '../config';
+import { useTranslation } from 'react-i18next'; // i18n import
 
 const { Title, Text } = Typography;
 
 const AdminManagementPage: React.FC = () => {
+  const { t } = useTranslation(); // t funksiyasi
   const {
     useGetAllAdmins,
     useCreateAdmin,
@@ -54,10 +58,9 @@ const AdminManagementPage: React.FC = () => {
   const [editForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
 
-  // Jadval ustunlari
   const columns = [
     {
-      title: 'Admin',
+      title: t('admins.table_admin'),
       dataIndex: 'fullName',
       key: 'fullName',
       render: (text: string, record: IAdmin) => (
@@ -79,7 +82,7 @@ const AdminManagementPage: React.FC = () => {
       ),
     },
     {
-      title: 'Rol',
+      title: t('admins.table_role'),
       dataIndex: 'role',
       key: 'role',
       render: (role: string) => (
@@ -92,18 +95,20 @@ const AdminManagementPage: React.FC = () => {
       ),
     },
     {
-      title: 'Holati',
+      title: t('admins.table_status'),
       dataIndex: 'isActive',
       key: 'isActive',
       render: (active: boolean) => (
         <Badge
           status={active ? 'success' : 'error'}
-          text={active ? 'Aktiv' : 'Nofaol'}
+          text={
+            active ? t('admins.status_active') : t('admins.status_inactive')
+          }
         />
       ),
     },
     {
-      title: 'Amallar',
+      title: t('admins.table_actions'),
       key: 'actions',
       render: (_: any, record: IAdmin) => (
         <Space size="middle">
@@ -117,10 +122,12 @@ const AdminManagementPage: React.FC = () => {
             }}
           />
           <Popconfirm
-            title="Adminni o'chirish"
-            description="Ushbu foydalanuvchini tizimdan o'chirmoqchimisiz?"
+            title={t('admins.delete_confirm_title')}
+            description={t('admins.delete_confirm_desc')}
             onConfirm={() => deleteMutation.mutate(record.id)}
             disabled={record.role === 'SUPER_ADMIN'}
+            okText={t('common.save')}
+            cancelText={t('common.cancel')}
           >
             <Button
               type="text"
@@ -140,11 +147,9 @@ const AdminManagementPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
           <div className="text-left w-full sm:w-auto">
             <Title level={3} className="mb-0!">
-              Adminlar Boshqaruvi
+              {t('admins.page_title')}
             </Title>
-            <Text type="secondary">
-              Xodimlarni yaratish, tahrirlash va parollarni tiklash
-            </Text>
+            <Text type="secondary">{t('admins.page_desc')}</Text>
           </div>
           <Button
             type="primary"
@@ -153,7 +158,7 @@ const AdminManagementPage: React.FC = () => {
             onClick={() => setIsCreateModalOpen(true)}
             className="rounded-xl bg-indigo-600 border-none px-6 h-12 shadow-lg"
           >
-            Yangi Admin Qo'shish
+            {t('admins.btn_add')}
           </Button>
         </div>
 
@@ -170,7 +175,7 @@ const AdminManagementPage: React.FC = () => {
 
       {/* 1. YARATISH MODALI */}
       <Modal
-        title="Yangi xodim qo'shish"
+        title={t('admins.modal_create_title')}
         open={isCreateModalOpen}
         onCancel={() => setIsCreateModalOpen(false)}
         footer={null}
@@ -189,27 +194,31 @@ const AdminManagementPage: React.FC = () => {
           }
         >
           <Form.Item
-            label="To'liq ism"
+            label={t('admins.form_fullname')}
             name="fullName"
             rules={[{ required: true }]}
           >
             <Input size="large" className="rounded-lg" />
           </Form.Item>
           <Form.Item
-            label="Username"
+            label={t('admins.form_username')}
             name="username"
             rules={[{ required: true }]}
           >
             <Input size="large" className="rounded-lg" />
           </Form.Item>
           <Form.Item
-            label="Parol"
+            label={t('admins.form_password')}
             name="password"
             rules={[{ required: true, min: 6 }]}
           >
             <Input.Password size="large" className="rounded-lg" />
           </Form.Item>
-          <Form.Item label="Rol" name="role" initialValue="ADMIN">
+          <Form.Item
+            label={t('admins.form_role')}
+            name="role"
+            initialValue="ADMIN"
+          >
             <Select size="large" className="rounded-lg">
               <Select.Option value="ADMIN">ADMIN</Select.Option>
               <Select.Option value="SUPER_ADMIN">SUPER_ADMIN</Select.Option>
@@ -223,7 +232,7 @@ const AdminManagementPage: React.FC = () => {
             loading={createMutation.isPending}
             className="bg-indigo-600 h-12 rounded-xl mt-4"
           >
-            Yaratish
+            {t('admins.form_btn_create')}
           </Button>
         </Form>
       </Modal>
@@ -233,7 +242,7 @@ const AdminManagementPage: React.FC = () => {
         title={
           <span>
             <EditOutlined className="mr-2" />
-            Admin Sozlamalari
+            {t('admins.modal_edit_title')}
           </span>
         }
         open={isEditModalOpen}
@@ -252,7 +261,7 @@ const AdminManagementPage: React.FC = () => {
               key: '1',
               label: (
                 <span>
-                  <UserOutlined /> Ma'lumotlar
+                  <UserOutlined /> {t('admins.tab_info')}
                 </span>
               ),
               children: (
@@ -267,20 +276,20 @@ const AdminManagementPage: React.FC = () => {
                   }
                 >
                   <Form.Item
-                    label="To'liq ism"
+                    label={t('admins.form_fullname')}
                     name="fullName"
                     rules={[{ required: true }]}
                   >
                     <Input size="large" className="rounded-lg" />
                   </Form.Item>
                   <Form.Item
-                    label="Username"
+                    label={t('admins.form_username')}
                     name="username"
                     rules={[{ required: true }]}
                   >
                     <Input size="large" className="rounded-lg" />
                   </Form.Item>
-                  <Form.Item label="Rol" name="role">
+                  <Form.Item label={t('admins.form_role')} name="role">
                     <Select size="large" className="rounded-lg">
                       <Select.Option value="ADMIN">ADMIN</Select.Option>
                       <Select.Option value="SUPER_ADMIN">
@@ -296,7 +305,7 @@ const AdminManagementPage: React.FC = () => {
                     loading={updateMutation.isPending}
                     className="bg-blue-600 h-12 rounded-xl mt-4"
                   >
-                    Saqlash
+                    {t('admins.form_btn_save')}
                   </Button>
                 </Form>
               ),
@@ -305,7 +314,7 @@ const AdminManagementPage: React.FC = () => {
               key: '2',
               label: (
                 <span className="text-red-500">
-                  <KeyOutlined /> Parolni yangilash
+                  <KeyOutlined /> {t('admins.tab_password')}
                 </span>
               ),
               children: (
@@ -313,8 +322,7 @@ const AdminManagementPage: React.FC = () => {
                   <div className="bg-red-50 p-4 rounded-xl border border-red-100 mb-6 flex gap-3">
                     <SafetyOutlined className="text-red-500 text-xl" />
                     <Text className="text-red-700 text-xs italic">
-                      Ushbu foydalanuvchi uchun tizimga kirish parolini Super
-                      Admin sifatida majburiy yangilaysiz.
+                      {t('admins.password_warning')}
                     </Text>
                   </div>
                   <Form
@@ -331,14 +339,14 @@ const AdminManagementPage: React.FC = () => {
                     }
                   >
                     <Form.Item
-                      label="Yangi parol"
+                      label={t('admins.form_new_password')}
                       name="newPassword"
                       rules={[{ required: true, min: 6 }]}
                     >
                       <Input.Password size="large" className="rounded-lg" />
                     </Form.Item>
                     <Form.Item
-                      label="Tasdiqlash"
+                      label={t('admins.form_confirm_password')}
                       name="confirm"
                       dependencies={['newPassword']}
                       rules={[
@@ -350,7 +358,9 @@ const AdminManagementPage: React.FC = () => {
                               getFieldValue('newPassword') === value
                             )
                               return Promise.resolve();
-                            return Promise.reject('Parollar mos emas!');
+                            return Promise.reject(
+                              t('admins.error_password_match'),
+                            );
                           },
                         }),
                       ]}
@@ -366,7 +376,7 @@ const AdminManagementPage: React.FC = () => {
                       loading={resetPasswordMutation.isPending}
                       className="h-12 rounded-xl mt-4 shadow-md"
                     >
-                      Parolni Tiklash
+                      {t('admins.form_btn_reset')}
                     </Button>
                   </Form>
                 </div>
@@ -378,6 +388,5 @@ const AdminManagementPage: React.FC = () => {
     </div>
   );
 };
-
 
 export default AdminManagementPage;

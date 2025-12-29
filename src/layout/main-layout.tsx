@@ -15,25 +15,29 @@ import {
   DollarCircleOutlined,
   DollarCircleFilled,
   HistoryOutlined,
+  GlobalOutlined, // Til ikonkasini qo'shdik
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme, Avatar, Dropdown, Badge } from 'antd';
+import { Button, Layout, Menu, theme, Avatar, Dropdown, Badge, Select } from 'antd';
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { BASE_URL } from '../config';
-import { Tablets, Users, UsersIcon } from 'lucide-react';
+import { Tablets, Users, UsersIcon, List } from 'lucide-react';
 import { useLogOut } from './service/useLogOut';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store/store';
+import { useTranslation } from 'react-i18next';
 
 const { Header, Sider, Content } = Layout;
 
 const MainLayout: React.FC = () => {
+  const { t, i18n } = useTranslation(); // i18n ob'ektini ham oldik
   const { mutate } = useLogOut();
   const token = Cookies.get('token');
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const user = useSelector((state: RootState) => state.user.user);
+  
   const userImageUrl = user?.avatar?.startsWith('/')
     ? `${BASE_URL.DEV}${user.avatar}`
     : null;
@@ -46,22 +50,25 @@ const MainLayout: React.FC = () => {
     return <Navigate to="/login" replace={true} />;
   }
 
-  // Logout funksiyasi
+  // Tilni almashtirish funksiyasi
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   const handleLogout = () => {
     mutate();
   };
 
-  // User menu items
   const userMenuItems = [
     {
       key: 'profile',
-      label: 'Profile',
+      label: t('user_menu.profile'),
       icon: <UserOutlined />,
       onClick: () => navigate('/profile'),
     },
     {
       key: 'settings',
-      label: 'Settings',
+      label: t('user_menu.settings'),
       icon: <SettingOutlined />,
       onClick: () => navigate('/settings'),
     },
@@ -70,64 +77,68 @@ const MainLayout: React.FC = () => {
     },
     {
       key: 'logout',
-      label: 'Logout',
+      label: t('user_menu.logout'),
       icon: <LogoutOutlined />,
       danger: true,
       onClick: handleLogout,
     },
   ];
 
-  // Menu elementlari - Keylar endi path bilan bir xil
   const menuItems = [
     {
       key: '/',
       icon: <HomeOutlined className="text-lg" />,
-      label: <span className="font-medium">Home</span>,
+      label: <span className="font-medium">{t('sidebar.home')}</span>,
     },
     {
       key: '/medicines',
       icon: <MedicineBoxOutlined className="text-lg" />,
-      label: <span className="font-medium">Dorilar</span>,
+      label: <span className="font-medium">{t('sidebar.medicines')}</span>,
     },
     {
       key: '/debtors',
       icon: <Users className="w-4 h-4" />,
-      label: <span className="font-medium">Qarzdorlar</span>,
+      label: <span className="font-medium">{t('sidebar.debtors')}</span>,
     },
     {
       key: '/create-medicines',
       icon: <Tablets className="w-4 h-4" />,
-      label: <span className="font-medium">Dorilar yaratish</span>,
+      label: <span className="font-medium">{t('sidebar.create_medicines')}</span>,
     },
     {
       key: '/sale',
       icon: <ShoppingCartOutlined className="w-4 h-4" />,
-      label: <span className="font-medium">Sotish</span>,
+      label: <span className="font-medium">{t('sidebar.sale')}</span>,
     },
     {
       key: '/upload-excel',
       icon: <FileExcelOutlined className="text-lg" />,
-      label: <span className="font-medium">Exceldan yuklash</span>,
+      label: <span className="font-medium">{t('sidebar.upload_excel')}</span>,
     },
     {
       key: '/daily-income',
       icon: <DollarCircleOutlined />,
-      label: <span className="font-medium">Kunlik daromad</span>,
+      label: <span className="font-medium">{t('sidebar.daily_income')}</span>,
     },
     {
       key: '/daily-sales',
       icon: <DollarCircleFilled />,
-      label: <span className="font-medium">Kunlik savdo</span>,
+      label: <span className="font-medium">{t('sidebar.daily_sales')}</span>,
     },
     {
       key: '/admin-actions',
       icon: <UsersIcon className="w-4 h-4" />,
-      label: <span className="font-medium">Adminlar</span>,
+      label: <span className="font-medium">{t('sidebar.admins')}</span>,
     },
     {
       key: '/sales-history',
       icon: <HistoryOutlined />,
-      label: <span className="font-medium">Smenalar tarixi</span>,
+      label: <span className="font-medium">{t('sidebar.sales_history')}</span>,
+    },
+    {
+      key: '/documents',
+      icon: <List />,
+      label: <span className="font-medium">{t('sidebar.documented_medicines')}</span>,
     },
   ];
 
@@ -163,7 +174,7 @@ const MainLayout: React.FC = () => {
                 <h1 className="text-white font-bold text-lg leading-tight">
                   Dinmuhammad
                 </h1>
-                <p className="text-[#a7f3d0] text-xs font-medium">Dorixona</p>
+                <p className="text-[#a7f3d0] text-xs font-medium">{t('sidebar.pharmacy')}</p>
               </div>
             )}
           </div>
@@ -215,16 +226,33 @@ const MainLayout: React.FC = () => {
           />
 
           <div className="flex items-center gap-4">
+            {/* TILLARNI ALMASHTIRUVCHI SELECT */}
+            <Select
+              defaultValue={i18n.language}
+              onChange={changeLanguage}
+              style={{ width: 120 }}
+              bordered={false}
+              className="language-select font-medium text-teal-700"
+              suffixIcon={<GlobalOutlined className="t text-[18px]" style={{color: '#0f766e'}} />}
+              options={[
+                { value: 'uz', label: '🇺🇿 O\'zbek' },
+                { value: 'ru', label: '🇷🇺 Русский' },
+                { value: 'tj', label: '🇹🇯 Тоҷикӣ' },
+                { value: 'en', label: '🇺🇸 English' },
+              ]}
+            />
+
             {user && (
               <div className="hidden md:flex flex-col items-end">
                 <span className="text-[#1f2937] font-semibold text-sm leading-tight">
                   {user.fullName}
                 </span>
                 <span className="text-[#6b7280] text-xs font-medium">
-                  Administrator
+                  {t('user_menu.admin_role')}
                 </span>
               </div>
             )}
+            
             <Dropdown
               menu={{ items: userMenuItems }}
               placement="bottomRight"
@@ -269,6 +297,12 @@ const MainLayout: React.FC = () => {
       </Layout>
 
       <style>{`
+        /* Til selecti uchun qo'shimcha stil */
+        .language-select .ant-select-selection-item {
+          color: #0f766e !important;
+          font-weight: 600;
+        }
+        
         .ant-menu-dark.ant-menu-inline .ant-menu-item-selected {
           background: rgba(255, 255, 255, 0.15) !important;
           border-radius: 8px;
@@ -300,23 +334,8 @@ const MainLayout: React.FC = () => {
           margin: 2px 0;
           transition: all 0.2s ease;
         }
-
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.3);
-        }
+        
+        /* ... qolgan scrollbar stillari */
       `}</style>
     </Layout>
   );

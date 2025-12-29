@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -39,6 +41,7 @@ import {
 } from './service/mutation/useDebtorsMutate';
 import dayjs from 'dayjs';
 import type { CreditStatus } from './type';
+import { useTranslation } from 'react-i18next'; // i18n import
 
 const { Title, Text } = Typography;
 
@@ -50,11 +53,11 @@ const statusColors: Record<CreditStatus, string> = {
 };
 
 const DebtorDetailPage: React.FC = () => {
+  const { t } = useTranslation(); // t funksiyasi
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const { data, isLoading } = useDebtorsDetail(id!);
-
   const { mutate: pay, isPending: isPaying } = useDebtorsPay(id!);
   const { mutate: update, isPending: isUpdating } = useDebtorsUpdate();
   const { mutate: deleteDebtor } = useDebtorsDelete();
@@ -70,7 +73,7 @@ const DebtorDetailPage: React.FC = () => {
   if (!debtor)
     return (
       <div className="text-center p-10">
-        <Text type="danger">Ma'lumot topilmadi</Text>
+        <Text type="danger">{t('debtor_detail.not_found')}</Text>
       </div>
     );
 
@@ -83,7 +86,7 @@ const DebtorDetailPage: React.FC = () => {
   const handlePay = (values: { amount: number }) => {
     pay(values, {
       onSuccess: () => {
-        message.success("To'lov muvaffaqiyatli qabul qilindi");
+        message.success(t('debtor_detail.msg_pay_success'));
         setPayModal(false);
         payForm.resetFields();
       },
@@ -99,7 +102,7 @@ const DebtorDetailPage: React.FC = () => {
 
     update(payload, {
       onSuccess: () => {
-        message.success("Ma'lumotlar muvaffaqiyatli yangilandi");
+        message.success(t('debtor_detail.msg_update_success'));
         setUpdateModal(false);
       },
     });
@@ -108,7 +111,7 @@ const DebtorDetailPage: React.FC = () => {
   const handleDelete = () => {
     deleteDebtor(debtor.id, {
       onSuccess: () => {
-        message.success("Qarzdor ro'yxatdan o'chirildi");
+        message.success(t('debtor_detail.msg_delete_success'));
         navigate('/debtors');
       },
     });
@@ -116,7 +119,6 @@ const DebtorDetailPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-4 md:space-y-6 p-2 md:p-6 animate-in fade-in duration-500">
-      {/* Header Navigation: Responsive layout */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <Button
           icon={<ArrowLeftOutlined />}
@@ -124,7 +126,7 @@ const DebtorDetailPage: React.FC = () => {
           type="text"
           className="hover:text-teal-600 font-medium p-0"
         >
-          Ro'yxatga qaytish
+          {t('debtor_detail.back')}
         </Button>
         <Space wrap className="w-full sm:w-auto">
           <Button
@@ -139,13 +141,13 @@ const DebtorDetailPage: React.FC = () => {
             }}
             className="rounded-lg flex-1"
           >
-            Tahrirlash
+            {t('debtor_detail.btn_edit')}
           </Button>
           <Popconfirm
-            title="Haqiqatan ham o'chirmoqchimisiz?"
+            title={t('debtor_detail.delete_confirm')}
             onConfirm={handleDelete}
-            okText="Ha"
-            cancelText="Yo'q"
+            okText={t('common.save')}
+            cancelText={t('common.cancel')}
             okButtonProps={{ danger: true }}
           >
             <Button
@@ -153,20 +155,19 @@ const DebtorDetailPage: React.FC = () => {
               icon={<DeleteOutlined />}
               className="rounded-lg flex-1"
             >
-              O'chirish
+              {t('debtor_detail.btn_delete')}
             </Button>
           </Popconfirm>
         </Space>
       </div>
 
       <Row gutter={[16, 16]}>
-        {/* Chap taraf: Asosiy Ma'lumotlar */}
         <Col xs={24} lg={16}>
           <Card
             className="shadow-lg rounded-3xl border-none overflow-hidden"
-            bodyStyle={{ padding: '16px sm:padding-32px' }}
+            bodyStyle={{ padding: '16px' }}
           >
-            <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6 sm:mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <div className="bg-teal-500 p-3 sm:p-4 rounded-2xl shadow-inner shrink-0">
                   <UserOutlined className="text-2xl sm:text-3xl text-white" />
@@ -174,70 +175,76 @@ const DebtorDetailPage: React.FC = () => {
                 <div className="min-w-0">
                   <Title
                     level={2}
-                    className="!mb-1 text-xl sm:text-2xl break-words"
+                    className="mb-1! text-xl sm:text-2xl wrap-break-word"
                   >
                     {debtor.customerName}
                   </Title>
                   <div className="flex flex-wrap items-center gap-2">
                     <Text type="secondary" className="whitespace-nowrap">
-                      <PhoneOutlined /> {debtor.customerPhone || 'Kiritilmagan'}
+                      <PhoneOutlined />{' '}
+                      {debtor.customerPhone || t('medicines.table.not_entered')}
                     </Text>
                     <Divider type="vertical" className="hidden sm:inline" />
                     <Tag color="teal" className="m-0">
-                      {debtor.knownAs || 'Izohsiz'}
+                      {debtor.knownAs || t('debtor_detail.known_as_ph')}
                     </Tag>
                   </div>
                 </div>
               </div>
               <Tag
-                color={statusColors[debtor.status]}
+                color={statusColors[debtor.status as CreditStatus]}
                 className="px-4 py-1 rounded-full text-xs font-bold uppercase shadow-sm m-0"
               >
-                {debtor.status}
+                {t(`debtors.status_types.${debtor.status}`)}
               </Tag>
             </div>
 
-            {/* Moliyaviy ko'rsatkichlar: Responsive Grid */}
-            <Row gutter={[12, 12]} className="mb-6 sm:mb-10">
+            <Row gutter={[12, 12]} className="mb-6">
               <Col xs={24} sm={8}>
-                <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 h-full">
+                <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-100 h-full">
                   <Text
                     type="secondary"
                     className="block mb-1 text-xs uppercase"
                   >
-                    Umumiy qarz
+                    {t('debtor_detail.total_debt')}
                   </Text>
-                  <Title level={3} className="!mb-0 text-lg sm:text-xl">
+                  <Title level={3} className="mb-0! text-lg sm:text-xl">
                     {total.toLocaleString()}{' '}
-                    <span className="text-xs font-normal">somoni</span>
+                    <span className="text-xs font-normal">
+                      {t('common.somoni')}
+                    </span>
                   </Title>
                 </div>
               </Col>
               <Col xs={12} sm={8}>
-                <div className="bg-emerald-50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-emerald-100 h-full">
+                <div className="bg-emerald-50 p-4 sm:p-6 rounded-2xl border border-emerald-100 h-full">
                   <Text className="text-emerald-600 block mb-1 font-medium text-xs uppercase">
-                    To'langan
+                    {t('debtor_detail.paid')}
                   </Text>
                   <Title
                     level={3}
-                    className="!mb-0 text-emerald-700 text-lg sm:text-xl"
+                    className="mb-0! text-emerald-700 text-lg sm:text-xl"
                   >
                     {paid.toLocaleString()}{' '}
-                    <span className="text-xs font-normal">somoni</span>
+                    <span className="text-xs font-normal">
+                      {t('common.somoni')}
+                    </span>
                   </Title>
                 </div>
               </Col>
               <Col xs={12} sm={8}>
-                <div className="bg-rose-50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-rose-100 h-full">
+                <div className="bg-rose-50 p-4 sm:p-6 rounded-2xl border border-rose-100 h-full">
                   <Text className="text-rose-600 block mb-1 font-medium text-xs uppercase">
-                    Qoldiq
+                    {t('debtor_detail.balance')}
                   </Text>
                   <Title
                     level={3}
-                    className="!mb-0 text-rose-700 text-lg sm:text-xl"
+                    className="mb-0! text-rose-700 text-lg sm:text-xl"
                   >
                     {remaining.toLocaleString()}{' '}
-                    <span className="text-xs font-normal">somoni</span>
+                    <span className="text-xs font-normal">
+                      {t('common.somoni')}
+                    </span>
                   </Title>
                 </div>
               </Col>
@@ -246,7 +253,7 @@ const DebtorDetailPage: React.FC = () => {
             <div className="bg-slate-50 p-4 sm:p-8 rounded-3xl border border-dashed border-slate-200 mb-2">
               <div className="flex justify-between mb-3">
                 <Text strong className="text-slate-600 text-sm sm:text-base">
-                  To'lov progressi
+                  {t('debtor_detail.progress_title')}
                 </Text>
                 <Text strong className="text-teal-600 text-base sm:text-lg">
                   {percent}%
@@ -263,27 +270,25 @@ const DebtorDetailPage: React.FC = () => {
                 type="primary"
                 icon={<DollarOutlined />}
                 size="large"
-                style={{ background: 'teal' }}
                 block
                 disabled={remaining <= 0}
                 onClick={() => setPayModal(true)}
                 className="h-12 sm:h-14 bg-teal-600 hover:bg-teal-700 border-none rounded-2xl text-base sm:text-lg font-bold shadow-lg"
               >
-                To'lov qabul qilish
+                {t('debtor_detail.btn_receive_pay')}
               </Button>
             </div>
           </Card>
 
-          {/* To'lovlar Tarixi */}
           <Card
             className="mt-6 shadow-lg rounded-3xl border-none overflow-hidden"
             title={
-              <Title level={4} className="!mb-0 text-lg">
-                <HistoryOutlined /> To'lovlar tarixi
+              <Title level={4} className="mb-0! text-lg">
+                <HistoryOutlined /> {t('debtor_detail.history_title')}
               </Title>
             }
-            styles={{ body: { padding: '8px sm:padding-24px' } }}
-            style={{marginTop:20}}
+            styles={{ body: { padding: '8px' } }}
+            style={{ marginTop: 20 }}
           >
             <List
               itemLayout="horizontal"
@@ -297,13 +302,14 @@ const DebtorDetailPage: React.FC = () => {
                       </div>
                       <div className="flex flex-col">
                         <Text strong className="text-base sm:text-lg">
-                          {Number(item.amount).toLocaleString()} somoni
+                          {Number(item.amount).toLocaleString()}{' '}
+                          {t('common.somoni')}
                         </Text>
                         <Text
                           type="secondary"
                           className="text-[10px] sm:text-xs"
                         >
-                          Naqd pul orqali
+                          {t('debtor_detail.payment_method')}
                         </Text>
                       </div>
                     </Space>
@@ -321,7 +327,7 @@ const DebtorDetailPage: React.FC = () => {
               locale={{
                 emptyText: (
                   <div className="p-10 text-slate-400">
-                    Hali hech qanday to'lov amalga oshirilmagan
+                    {t('debtor_detail.history_empty')}
                   </div>
                 ),
               }}
@@ -329,23 +335,21 @@ const DebtorDetailPage: React.FC = () => {
           </Card>
         </Col>
 
-        {/* O'ng taraf: Muddat va Statistika */}
         <Col xs={24} lg={8}>
           <div className="sticky top-6 space-y-4 md:space-y-6">
-            <Card className="shadow-lg rounded-3xl border-none bg-gradient-to-b from-teal-600 to-teal-800 text-white overflow-hidden">
+            <Card className="shadow-lg rounded-3xl border-none bg-linear-to-b from-teal-600 to-teal-800 text-white overflow-hidden">
               <div className="p-6">
                 <Title
                   level={4}
-                  className="!text-white flex items-center gap-2 text-lg"
+                  className="text-white! flex items-center gap-2 text-lg"
                 >
-                  <CalendarOutlined /> Qarz muddati
+                  <CalendarOutlined /> {t('debtor_detail.deadline_title')}
                 </Title>
                 <Divider className="border-white/20 my-4" />
-
                 <div className="space-y-6">
                   <div>
                     <Text className="text-white/60 block text-xs uppercase tracking-wider mb-2">
-                      Oxirgi muddat:
+                      {t('debtor_detail.last_date')}:
                     </Text>
                     <div className="flex flex-wrap items-center gap-3">
                       <span className="text-2xl sm:text-3xl font-bold">
@@ -357,15 +361,14 @@ const DebtorDetailPage: React.FC = () => {
                             color="error"
                             className="animate-pulse border-none font-bold m-0"
                           >
-                            MUDDATI O'TGAN
+                            {t('debtor_detail.overdue')}
                           </Tag>
                         )}
                     </div>
                   </div>
-
                   <div className="bg-white/10 p-4 rounded-2xl border border-white/10">
                     <Text className="text-white/60 block text-xs mb-1">
-                      Ro'yxatga olingan:
+                      {t('debtor_detail.registered')}:
                     </Text>
                     <Text className="text-white font-medium">
                       {dayjs(debtor.createdAt).format('DD MMMM, YYYY')}
@@ -375,9 +378,16 @@ const DebtorDetailPage: React.FC = () => {
               </div>
             </Card>
 
-            <Card className="shadow-md rounded-3xl border-none " style={{marginTop:20}}>
+            <Card
+              className="shadow-md rounded-3xl border-none "
+              style={{ marginTop: 20 }}
+            >
               <Descriptions
-                title={<span className="text-base">Ma'lumotlar</span>}
+                title={
+                  <span className="text-base">
+                    {t('debtor_detail.details_title')}
+                  </span>
+                }
                 column={1}
                 size="small"
               >
@@ -386,16 +396,18 @@ const DebtorDetailPage: React.FC = () => {
                     {debtor.id.slice(0, 8)}...
                   </Text>
                 </Descriptions.Item>
-                <Descriptions.Item label="Holati">
+                <Descriptions.Item label={t('medicines.table.status')}>
                   {debtor.isActive ? (
                     <Tag color="success" className="m-0">
-                      AKTIV
+                      {t('medicine_detail.status_active')}
                     </Tag>
                   ) : (
-                    <Tag className="m-0">NOAKTIV</Tag>
+                    <Tag className="m-0">
+                      {t('medicine_detail.status_inactive')}
+                    </Tag>
                   )}
                 </Descriptions.Item>
-                <Descriptions.Item label="Yangilanish">
+                <Descriptions.Item label={t('home.last_update')}>
                   {dayjs(debtor.updatedAt).format('DD.MM.YY')}
                 </Descriptions.Item>
               </Descriptions>
@@ -404,9 +416,8 @@ const DebtorDetailPage: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Modallar bir xil responsivlikda qoladi, asosan paddinglar ichki formaga tushadi */}
       <Modal
-        title="To'lov qabul qilish"
+        title={t('debtor_detail.modal_pay_title')}
         open={payModal}
         onCancel={() => setPayModal(false)}
         footer={null}
@@ -421,19 +432,13 @@ const DebtorDetailPage: React.FC = () => {
         >
           <Form.Item
             name="amount"
-            label={`Summa (Max: ${remaining.toLocaleString()} somoni)`}
+            label={t('debtor_detail.modal_pay_max', {
+              amount: remaining.toLocaleString(),
+            })}
             rules={[
-              { required: true, message: 'Summani kiriting' },
-              {
-                type: 'number',
-                min: 1,
-                message: "Kamida 1 so'm bo'lishi kerak",
-              },
-              {
-                type: 'number',
-                max: remaining,
-                message: "Qarzdan ko'p to'lab bo'lmaydi",
-              },
+              { required: true, message: t('debtors.form.req') },
+              { type: 'number', min: 1 },
+              { type: 'number', max: remaining },
             ]}
           >
             <InputNumber
@@ -442,9 +447,6 @@ const DebtorDetailPage: React.FC = () => {
               placeholder="0"
               formatter={(value) =>
                 `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-              }
-              parser={(value) =>
-                value!.replace(/\s?somoni/g, '').replace(/\s/g, '')
               }
             />
           </Form.Item>
@@ -456,13 +458,13 @@ const DebtorDetailPage: React.FC = () => {
             size="large"
             className="bg-teal-600 h-12 rounded-xl mt-4 font-bold"
           >
-            Tasdiqlash
+            {t('common.save')}
           </Button>
         </Form>
       </Modal>
 
       <Modal
-        title="Tahrirlash"
+        title={t('debtors.modal_title')}
         open={updateModal}
         onCancel={() => setUpdateModal(false)}
         footer={null}
@@ -476,19 +478,19 @@ const DebtorDetailPage: React.FC = () => {
         >
           <Form.Item
             name="customerName"
-            label="Mijoz ismi"
+            label={t('debtors.form.name_label')}
             rules={[{ required: true }]}
           >
             <Input size="large" />
           </Form.Item>
-          <Form.Item name="customerPhone" label="Telefon raqami">
+          <Form.Item name="customerPhone" label={t('debtors.form.phone_label')}>
             <Input size="large" />
           </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
               <Form.Item
                 name="totalAmount"
-                label="Jami qarz"
+                label={t('debtors.form.amount_label')}
                 rules={[{ required: true }]}
               >
                 <InputNumber className="w-full" size="large" />
@@ -497,7 +499,7 @@ const DebtorDetailPage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="dueDate"
-                label="Muddat"
+                label={t('debtors.form.due_date_label')}
                 rules={[{ required: true }]}
               >
                 <DatePicker className="w-full" size="large" />
@@ -512,18 +514,10 @@ const DebtorDetailPage: React.FC = () => {
             size="large"
             className="bg-teal-600 h-12 rounded-xl mt-4 font-bold"
           >
-            Yangilash
+            {t('debtors.form.btn_save')}
           </Button>
         </Form>
       </Modal>
-
-      <style>{`
-        .ant-card { border-radius: 24px; }
-        .ant-progress-inner { background-color: #f1f5f9; }
-        @media (max-width: 640px) {
-          .ant-modal { max-width: calc(100vw - 32px); margin: 16px auto; }
-        }
-      `}</style>
     </div>
   );
 };

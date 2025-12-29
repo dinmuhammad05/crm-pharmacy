@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDebtorsList } from './service/query/useDebtorsQuery';
 import dayjs from 'dayjs';
 import { useDebtorsCreate } from './service/mutation/useDebtorsMutate';
+import { useTranslation } from 'react-i18next'; // i18n import
 
 const { Title, Text } = Typography;
 
@@ -36,6 +37,7 @@ const statusColors: Record<string, string> = {
 };
 
 const DebtorsPage: React.FC = () => {
+  const { t } = useTranslation(); // t funksiyasi
   const navigate = useNavigate();
   const { data, isLoading } = useDebtorsList();
   const { mutate: createDebtor, isPending: isCreating } = useDebtorsCreate();
@@ -52,7 +54,7 @@ const DebtorsPage: React.FC = () => {
       },
       {
         onSuccess: () => {
-          message.success("Yangi qarzdor qo'shildi");
+          message.success(t('debtors.msg_success'));
           setIsModalOpen(false);
           form.resetFields();
         },
@@ -72,10 +74,10 @@ const DebtorsPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'Mijoz nomi',
+      title: t('debtors.table.name'),
       dataIndex: 'customerName',
       key: 'customerName',
-      fixed: 'left' as const, // Mobil uchun qotirildi
+      fixed: 'left' as const,
       width: 150,
       render: (text: string, record: any) => (
         <Space direction="vertical" size={0}>
@@ -85,7 +87,7 @@ const DebtorsPage: React.FC = () => {
           <Text
             type="secondary"
             style={{ fontSize: '11px' }}
-            className="truncate max-w-[140px]"
+            className="truncate max-w-35"
           >
             {record.knownAs || ''}
           </Text>
@@ -93,7 +95,7 @@ const DebtorsPage: React.FC = () => {
       ),
     },
     {
-      title: 'Telefon',
+      title: t('debtors.table.phone'),
       dataIndex: 'customerPhone',
       key: 'customerPhone',
       width: 140,
@@ -107,29 +109,29 @@ const DebtorsPage: React.FC = () => {
         ),
     },
     {
-      title: 'Umumiy qarz',
+      title: t('debtors.table.total_debt'),
       dataIndex: 'totalAmount',
       key: 'totalAmount',
       width: 130,
       render: (amount: string) => (
         <Text strong className="whitespace-nowrap">
-          {Number(amount).toLocaleString()} somoni
+          {Number(amount).toLocaleString()} {t('common.somoni')}
         </Text>
       ),
     },
     {
-      title: "To'langan",
+      title: t('debtors.table.paid'),
       dataIndex: 'paidAmount',
       key: 'paidAmount',
       width: 130,
       render: (amount: string) => (
         <Text className="text-emerald-600 whitespace-nowrap">
-          {Number(amount).toLocaleString()} somoni
+          {Number(amount).toLocaleString()} {t('common.somoni')}
         </Text>
       ),
     },
     {
-      title: 'Qoldiq',
+      title: t('debtors.table.balance'),
       key: 'remaining',
       width: 130,
       render: (_: any, record: any) => {
@@ -137,13 +139,13 @@ const DebtorsPage: React.FC = () => {
           Number(record.totalAmount) - Number(record.paidAmount);
         return (
           <Tag color={remaining > 0 ? 'volcano' : 'green'} className="m-0">
-            {remaining.toLocaleString()} somoni
+            {remaining.toLocaleString()} {t('common.somoni')}
           </Tag>
         );
       },
     },
     {
-      title: 'Muddat',
+      title: t('debtors.table.due_date'),
       dataIndex: 'dueDate',
       key: 'dueDate',
       width: 110,
@@ -154,20 +156,20 @@ const DebtorsPage: React.FC = () => {
       ),
     },
     {
-      title: 'Status',
+      title: t('debtors.table.status'),
       dataIndex: 'status',
       key: 'status',
-      width: 110,
+      width: 130,
       render: (status: string) => (
         <Tag color={statusColors[status]} className="m-0">
-          {status.toUpperCase()}
+          {t(`debtors.status_types.${status}`)}
         </Tag>
       ),
     },
     {
-      title: 'Amallar',
+      title: t('debtors.table.actions'),
       key: 'actions',
-      fixed: 'right' as const, // Amallar tugmasi har doim ko'rinib turadi
+      fixed: 'right' as const,
       width: 100,
       render: (_: any, record: any) => (
         <Button
@@ -177,7 +179,7 @@ const DebtorsPage: React.FC = () => {
           icon={<EyeOutlined />}
           onClick={() => navigate(`/debtors/detail/${record.id}`)}
         >
-          Ko'rish
+          {t('debtors.table.view')}
         </Button>
       ),
     },
@@ -188,11 +190,11 @@ const DebtorsPage: React.FC = () => {
       <Card className="shadow-sm border-teal-100 rounded-2xl">
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
           <Title level={3} className="m-0! text-teal-800! text-xl sm:text-2xl">
-            <WalletOutlined className="mr-2" /> Qarzdorlar Ro'yxati
+            <WalletOutlined className="mr-2" /> {t('debtors.title')}
           </Title>
           <div className="flex flex-col sm:flex-row gap-2 w-full xl:w-auto">
             <Input
-              placeholder="Qidirish (ism yoki tel)..."
+              placeholder={t('debtors.search_ph')}
               prefix={<SearchOutlined className="text-gray-400" />}
               onChange={(e) => setSearchText(e.target.value)}
               className="w-full sm:w-64 h-10"
@@ -201,9 +203,9 @@ const DebtorsPage: React.FC = () => {
               type="primary"
               icon={<UserAddOutlined />}
               onClick={() => setIsModalOpen(true)}
-              className="bg-teal-600 hover:bg-teal-700 border-none h-10 w-full sm:w-auto"
+              className="bg-teal-600 hover:bg-teal-700 border-none h-10 w-full sm:w-auto font-medium"
             >
-              Yangi qo'shish
+              {t('debtors.btn_add')}
             </Button>
           </div>
         </div>
@@ -218,12 +220,8 @@ const DebtorsPage: React.FC = () => {
           dataSource={filteredData}
           loading={isLoading}
           rowKey="id"
-          pagination={{
-            pageSize: 8,
-            responsive: true,
-            size: 'small',
-          }}
-          scroll={{ x: 1000 }} // Mobil qurilmalar uchun scroll
+          pagination={{ pageSize: 8, responsive: true, size: 'small' }}
+          scroll={{ x: 1000 }}
           className="debtors-table"
         />
       </Card>
@@ -231,7 +229,7 @@ const DebtorsPage: React.FC = () => {
       <Modal
         title={
           <span className="text-teal-800 font-bold">
-            Yangi qarzdor qo'shish
+            {t('debtors.modal_title')}
           </span>
         }
         open={isModalOpen}
@@ -248,29 +246,41 @@ const DebtorsPage: React.FC = () => {
         >
           <Form.Item
             name="customerName"
-            label="Mijoz ismi"
-            rules={[{ required: true }]}
+            label={t('debtors.form.name_label')}
+            rules={[{ required: true, message: t('debtors.form.req') }]}
           >
-            <Input placeholder="Ali Valiev" className="h-10" />
+            <Input
+              placeholder={t('debtors.form.name_ph')}
+              className="h-10 rounded-lg"
+            />
           </Form.Item>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-            <Form.Item name="customerPhone" label="Telefon raqami">
-              <Input placeholder="+998 90 123 45 67" className="h-10" />
+            <Form.Item
+              name="customerPhone"
+              label={t('debtors.form.phone_label')}
+            >
+              <Input
+                placeholder="+998 90 123 45 67"
+                className="h-10 rounded-lg"
+              />
             </Form.Item>
-            <Form.Item name="knownAs" label="Qo'shimcha nom (laqab)">
-              <Input placeholder="Usta" className="h-10" />
+            <Form.Item name="knownAs" label={t('debtors.form.nickname_label')}>
+              <Input
+                placeholder={t('debtors.form.nickname_ph')}
+                className="h-10 rounded-lg"
+              />
             </Form.Item>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
             <Form.Item
               name="totalAmount"
-              label="Qarz miqdori"
-              rules={[{ required: true }]}
+              label={t('debtors.form.amount_label')}
+              rules={[{ required: true, message: t('debtors.form.req') }]}
             >
               <InputNumber
-                className="w-full h-10 flex items-center"
+                className="w-full h-10 flex items-center rounded-lg"
                 placeholder="100 000"
                 formatter={(value) =>
                   `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
@@ -279,12 +289,12 @@ const DebtorsPage: React.FC = () => {
             </Form.Item>
             <Form.Item
               name="dueDate"
-              label="Qaytarish muddati"
-              rules={[{ required: true }]}
+              label={t('debtors.form.due_date_label')}
+              rules={[{ required: true, message: t('debtors.form.req') }]}
             >
               <DatePicker
-                className="w-full h-10"
-                placeholder="Sanani tanlang"
+                className="w-full h-10 rounded-lg"
+                placeholder={t('debtors.form.due_date_ph')}
               />
             </Form.Item>
           </div>
@@ -294,9 +304,9 @@ const DebtorsPage: React.FC = () => {
             block
             htmlType="submit"
             loading={isCreating}
-            className="bg-teal-600 h-11 mt-2 text-base font-semibold"
+            className="bg-teal-600 h-11 mt-2 text-base font-semibold rounded-lg shadow-md"
           >
-            Saqlash
+            {t('debtors.form.btn_save')}
           </Button>
         </Form>
       </Modal>
@@ -306,12 +316,6 @@ const DebtorsPage: React.FC = () => {
           background-color: #f0fdfa;
           color: #134e4a;
           font-weight: 600;
-        }
-        @media (max-width: 640px) {
-          .ant-table-pagination {
-            justify-content: center !important;
-            float: none !important;
-          }
         }
       `}</style>
     </div>

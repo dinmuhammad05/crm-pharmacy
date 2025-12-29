@@ -1,15 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
-import {
-  Table,
-  Card,
-  Typography,
-  DatePicker,
-  Tag,
-  Badge,
-  Space,
-  Divider,
-  Button,
-} from 'antd';
+import { Table, Card, Typography, DatePicker, Tag, Badge, Space } from 'antd';
 import {
   CalendarOutlined,
   UserOutlined,
@@ -24,30 +16,31 @@ import type {
   ShiftHistory,
   ShiftQueryParams,
 } from './service/query/useSalesHistory';
+import { useTranslation } from 'react-i18next'; // i18n import
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
 const ShiftHistoryPage: React.FC = () => {
+  const { t } = useTranslation(); // t funksiyasi
   const [queryParams, setQueryParams] = useState<ShiftQueryParams>({
     page: 1,
     pageSize: 10,
   });
 
   const { data, isLoading } = useShifts(queryParams);
-  console.log('dd', data)
 
   // 1. Ichki jadval: Smena ichidagi savdolar
   const expandedRowRender = (shift: ShiftHistory) => {
     const saleColumns = [
       {
-        title: 'Vaqt',
+        title: t('shifts_history.inner_table.time'),
         dataIndex: 'createdAt',
         key: 'time',
         render: (date: string) => dayjs(date).format('HH:mm:ss'),
       },
       {
-        title: 'Dorilar',
+        title: t('shifts_history.inner_table.medicines'),
         dataIndex: 'items',
         key: 'items',
         render: (items: SaleItemHistory[]) => (
@@ -57,7 +50,14 @@ const ShiftHistoryPage: React.FC = () => {
                 <Text strong>{item.medicine.name}</Text>
                 <Text type="secondary">
                   {' '}
-                  x {item.amount} {item.type === 'pack' ? 'pachka' : 'dona'}
+                  x {item.amount}{' '}
+                  {item.type === 'pack'
+                    ? t('shifts_history.inner_table.pack')
+                    : t('shifts_history.inner_table.unit')}
+                </Text>
+                <Text type="secondary">
+                  {' '}
+                  - {item.priceAtMoment.toLocaleString()} {t('common.somoni')}
                 </Text>
               </div>
             ))}
@@ -65,19 +65,21 @@ const ShiftHistoryPage: React.FC = () => {
         ),
       },
       {
-        title: 'Summa',
+        title: t('shifts_history.inner_table.amount'),
         dataIndex: 'totalPrice',
         key: 'total',
         render: (price: number) => (
-          <Text strong>{price.toLocaleString()} so'm</Text>
+          <Text strong>
+            {price.toLocaleString()} {t('common.som')}
+          </Text>
         ),
       },
     ];
 
     return (
       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-        <Title level={5} className="!mb-4">
-          Smenadagi savdolar ro'yxati
+        <Title level={5} className="mb-4!">
+          {t('shifts_history.inner_table.title')}
         </Title>
         <Table
           columns={saleColumns}
@@ -93,27 +95,28 @@ const ShiftHistoryPage: React.FC = () => {
   // 2. Asosiy jadval: Smenalar
   const columns = [
     {
-      title: 'Smena oralig’i',
+      title: t('shifts_history.table.range'),
       key: 'duration',
       render: (record: ShiftHistory) => (
         <div className="flex flex-col gap-1.5">
-          {/* 1. Sana qismi */}
           <div className="flex items-center gap-2 text-slate-500">
             <CalendarOutlined className="text-[12px]" />
             <Text className="text-[13px] font-medium">
               {dayjs(record.startTime).format('DD.MM.YYYY')}
             </Text>
+            <Text className="text-[13px] font-medium">
+              {record.endTime
+                ? ` - ${dayjs(record.endTime).format('DD.MM.YYYY')}`
+                : ''}
+            </Text>
           </div>
 
-          {/* 2. Vaqtlar oralig'i strelka bilan */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
               <Text className="text-[13px] font-bold text-slate-700">
                 {dayjs(record.startTime).format('HH:mm')}
               </Text>
-
               <ArrowRightOutlined className="text-[10px] text-slate-400" />
-
               {record.endTime ? (
                 <Text className="text-[13px] font-bold text-slate-700">
                   {dayjs(record.endTime).format('HH:mm')}
@@ -123,7 +126,7 @@ const ShiftHistoryPage: React.FC = () => {
                   color="processing"
                   className="m-0 text-[10px] px-2 leading-4 uppercase font-extrabold border-none bg-teal-100 text-teal-700"
                 >
-                  Faol
+                  {t('shifts_history.table.active')}
                 </Tag>
               )}
             </div>
@@ -132,18 +135,18 @@ const ShiftHistoryPage: React.FC = () => {
       ),
     },
     {
-      title: 'Xodim',
+      title: t('shifts_history.table.staff'),
       dataIndex: ['admin', 'fullName'],
       key: 'admin',
       render: (name: string) => (
         <Space>
-          <Avatar size="small" icon={<UserOutlined />} />
+          <Avatar icon={<UserOutlined />} />
           <Text>{name}</Text>
         </Space>
       ),
     },
     {
-      title: 'Savdolar',
+      title: t('shifts_history.table.sales'),
       key: 'salesCount',
       render: (record: ShiftHistory) => (
         <Badge
@@ -155,25 +158,25 @@ const ShiftHistoryPage: React.FC = () => {
       ),
     },
     {
-      title: 'Jami tushum',
+      title: t('shifts_history.table.total_revenue'),
       dataIndex: 'totalCash',
       key: 'totalCash',
       render: (cash: number) => (
         <Text strong className="text-emerald-600 text-base">
-          {cash.toLocaleString()} <small>so'm</small>
+          {cash.toLocaleString()} <small>{t('common.som')}</small>
         </Text>
       ),
     },
     {
-      title: 'Holat',
+      title: t('shifts_history.table.status'),
       dataIndex: 'endTime',
       key: 'status',
       render: (endTime: string | null) =>
         endTime ? (
-          <Tag color="default">Yopilgan</Tag>
+          <Tag color="default">{t('shifts_history.table.closed')}</Tag>
         ) : (
           <Tag color="processing" icon={<HistoryOutlined />}>
-            Aktiv
+            {t('shifts_history.table.active')}
           </Tag>
         ),
     },
@@ -181,7 +184,6 @@ const ShiftHistoryPage: React.FC = () => {
 
   return (
     <div className="w-full p-4 md:p-8 space-y-6">
-      {/* Header & Filter */}
       <Card className="rounded-3xl shadow-sm border-none">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
@@ -189,16 +191,19 @@ const ShiftHistoryPage: React.FC = () => {
               <WalletOutlined style={{ fontSize: '24px' }} />
             </div>
             <div>
-              <Title level={3} className="!m-0">
-                Kassa va Smenalar
+              <Title level={3} className="m-0!">
+                {t('shifts_history.title')}
               </Title>
-              <Text type="secondary">Barcha savdo operatsiyalari tarixi</Text>
+              <Text type="secondary">{t('shifts_history.subtitle')}</Text>
             </div>
           </div>
 
           <RangePicker
             className="rounded-xl h-12"
-            placeholder={['Boshlanish', 'Tugash']}
+            placeholder={[
+              t('shifts_history.start_date'),
+              t('shifts_history.end_date'),
+            ]}
             onChange={(dates) => {
               setQueryParams({
                 ...queryParams,
@@ -211,7 +216,6 @@ const ShiftHistoryPage: React.FC = () => {
         </div>
       </Card>
 
-      {/* Main Table Card */}
       <Card className="rounded-3xl shadow-sm border-none overflow-hidden">
         <Table
           loading={isLoading}
@@ -254,14 +258,12 @@ const ShiftHistoryPage: React.FC = () => {
   );
 };
 
-// Yordamchi Avatar komponenti (agar import bo'lmasa)
-const Avatar = ({ size, icon }: any) => (
+const Avatar = ({ icon }: any) => (
   <div
     className={`rounded-full bg-slate-200 flex items-center justify-center p-1 w-6 h-6 text-xs`}
   >
     {icon}
   </div>
 );
-
 
 export default ShiftHistoryPage;

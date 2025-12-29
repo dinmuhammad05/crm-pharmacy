@@ -22,10 +22,12 @@ import dayjs from 'dayjs';
 import { useShiftList } from './service/query/useShiftList';
 import { useUpdateShift } from './service/mutation/useUpdateShift';
 import type { IShift } from './type';
+import { useTranslation } from 'react-i18next'; // i18n hook
 
 const { Text, Title } = Typography;
 
 const ShiftTable: React.FC = () => {
+  const { t } = useTranslation(); // t funksiyasi
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchDate, setSearchDate] = useState<string | undefined>();
@@ -66,7 +68,7 @@ const ShiftTable: React.FC = () => {
 
   const columns = [
     {
-      title: 'Sana',
+      title: t('shifts.table.date'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 140,
@@ -78,7 +80,7 @@ const ShiftTable: React.FC = () => {
       ),
     },
     {
-      title: 'Admin',
+      title: t('shifts.table.admin'),
       dataIndex: 'admin',
       key: 'admin',
       width: 250,
@@ -96,19 +98,19 @@ const ShiftTable: React.FC = () => {
       ),
     },
     {
-      title: 'Smena Pul (Naqd)',
+      title: t('shifts.table.cash'),
       dataIndex: 'totalCash',
       key: 'totalCash',
       width: 180,
       align: 'right' as const,
       render: (amount: number) => (
         <Text className="text-teal-700 font-bold whitespace-nowrap">
-          {amount.toLocaleString()} somoni
+          {amount.toLocaleString()} {t('common.somoni')}
         </Text>
       ),
     },
     {
-      title: 'Amallar',
+      title: t('shifts.table.actions'),
       key: 'action',
       width: 80,
       align: 'center' as const,
@@ -123,7 +125,7 @@ const ShiftTable: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 sm:p-6  mx-auto space-y-4">
+    <div className="p-4 sm:p-6 mx-auto space-y-4">
       {/* Header */}
       <div className="bg-white p-4 rounded-2xl border border-teal-50 shadow-sm flex flex-col md:flex-row justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -132,17 +134,17 @@ const ShiftTable: React.FC = () => {
           </div>
           <div>
             <Title level={4} style={{ margin: 0 }}>
-              Smenalar Nazorati
+              {t('shifts.title')}
             </Title>
             <Text className="text-xs text-slate-400">
-              Naqd pullarni boshqarish tizimi
+              {t('shifts.subtitle')}
             </Text>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <DatePicker
-            placeholder="Sana bo‘yicha"
+            placeholder={t('shifts.search_ph')}
             onChange={handleSearch}
             allowClear
           />
@@ -156,7 +158,8 @@ const ShiftTable: React.FC = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table Section */}
+
       <Card bodyStyle={{ padding: 0 }} className="rounded-2xl">
         <Table
           columns={columns}
@@ -179,20 +182,20 @@ const ShiftTable: React.FC = () => {
 
       {/* Modal */}
       <Modal
-        title="Smena pulini tahrirlash"
+        title={t('shifts.modal.edit_title')}
         open={isModalVisible}
         onOk={() => form.submit()}
         onCancel={() => setIsModalVisible(false)}
         confirmLoading={isPending}
-        okText="Yangilash"
-        cancelText="Bekor qilish"
+        okText={t('shifts.modal.btn_update')}
+        cancelText={t('common.cancel')}
         centered
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
             name="totalCash"
-            label="Jami naqd pul"
-            rules={[{ required: true, message: 'Miqdorni kiriting!' }]}
+            label={t('shifts.modal.label_cash')}
+            rules={[{ required: true, message: t('shifts.modal.req_cash') }]}
           >
             <InputNumber
               className="w-full"

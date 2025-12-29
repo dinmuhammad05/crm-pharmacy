@@ -1,3 +1,5 @@
+'use client';
+
 import { Form, Input, Button, Tabs, message, Card, Upload, Avatar } from 'antd';
 import {
   LockOutlined,
@@ -6,21 +8,18 @@ import {
   UploadOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
-import {  useState } from 'react';
+import { useState } from 'react';
 import type { UploadFile } from 'antd';
-import { useDeleteAvatar, useUpdateAvatar, useUpdatePassword } from './service/mutation/useAdmin';
-import { useUpdateDetail } from './service/mutation/useAdmin'; 
-import type  { IUpdateDetails } from './service/mutation/useAdmin';
+import { useDeleteAvatar, useUpdateAvatar, useUpdatePassword, useUpdateDetail } from './service/mutation/useAdmin';
+import type { IUpdateDetails } from './service/mutation/useAdmin';
 import { BASE_URL } from '../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState } from '../store/store';
-import {
-  updateAvatar as updateAvatarStore,
-  updateUser,
-  type User,
-} from '../store/userSlice';
+import { updateAvatar as updateAvatarStore, updateUser, type User } from '../store/userSlice';
+import { useTranslation } from 'react-i18next'; // i18n import
 
 export default function AdminSettingsPage() {
+  const { t, i18n } = useTranslation(); // t funksiyasi va hozirgi til
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -28,6 +27,7 @@ export default function AdminSettingsPage() {
 
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.user);
+  const currentLang = (i18n.language as 'uz' | 'ru' | 'tj' | 'en') || 'uz';
 
   const avatarUrl = user?.avatar ?? null;
 
@@ -47,14 +47,10 @@ export default function AdminSettingsPage() {
         newPassword: values.newPassword,
       });
 
-      messageApi.success(
-        response.message.uz || "Parol muvaffaqiyatli o'zgartirildi",
-      );
+      messageApi.success(response.message[currentLang] || t('settings.messages.pass_success'));
       passwordForm.resetFields();
     } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message?.uz ||
-        "Parolni o'zgartirishda xatolik yuz berdi";
+      const errorMessage = error?.response?.data?.message[currentLang] || t('settings.messages.pass_error');
       messageApi.error(errorMessage);
     }
   };
@@ -70,13 +66,9 @@ export default function AdminSettingsPage() {
       };
 
       dispatch(updateUser(userData));
-      messageApi.success(
-        response.message.uz || "Ma'lumotlar muvaffaqiyatli o'zgartirildi",
-      );
+      messageApi.success(response.message[currentLang] || t('settings.messages.info_success'));
     } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message?.uz ||
-        "Ma'lumotlarni o'zgartirishda xatolik yuz berdi";
+      const errorMessage = error?.response?.data?.message[currentLang] || t('settings.messages.info_error');
       messageApi.error(errorMessage);
     }
   };
@@ -84,40 +76,23 @@ export default function AdminSettingsPage() {
   const handleAvatarUpload = async (file: File) => {
     try {
       const response = await updateAvatar.mutateAsync(file);
-
       dispatch(updateAvatarStore(response.data.url!));
-
-      messageApi.success(
-        response.message.uz || 'Avatar muvaffaqiyatli yuklandi',
-      );
-
+      messageApi.success(response.message[currentLang] || t('settings.messages.avatar_success'));
       setFileList([]);
     } catch (error: any) {
-      messageApi.error(
-        error?.response?.data?.message?.uz ||
-          'Avatarni yuklashda xatolik yuz berdi',
-      );
+      messageApi.error(error?.response?.data?.message[currentLang] || t('settings.messages.avatar_error'));
     }
-
     return false;
   };
 
   const handleDeleteAvatar = async () => {
     try {
       const response = await deleteAvatar.mutateAsync();
-
       dispatch(updateAvatarStore(''));
-
-      messageApi.success(
-        response.message.uz || "Avatar muvaffaqiyatli o'chirildi",
-      );
-
+      messageApi.success(response.message[currentLang] || t('settings.messages.avatar_deleted'));
       setFileList([]);
     } catch (error: any) {
-      messageApi.error(
-        error?.response?.data?.message?.uz ||
-          "Avatarni o'chirishda xatolik yuz berdi",
-      );
+      messageApi.error(error?.response?.data?.message[currentLang] || t('settings.messages.info_error'));
     }
   };
 
@@ -127,7 +102,7 @@ export default function AdminSettingsPage() {
       label: (
         <span className="flex items-center gap-2">
           <UserOutlined />
-          Profil ma'lumotlari
+          {t('settings.tab_profile')}
         </span>
       ),
       children: (
@@ -137,49 +112,43 @@ export default function AdminSettingsPage() {
             layout="vertical"
             onFinish={handleProfileSubmit}
             className="max-w-2xl"
+            initialValues={{ fullName: user?.fullName, username: user?.username }}
           >
             <Form.Item
-              label="Ism"
+              label={t('settings.full_name')}
               name="fullName"
               rules={[
-                { required: true, message: 'Iltimos, to\'liq ismingizni kiriting!' },
-                {
-                  min: 2,
-                  message: "Ism kamida 2 ta belgidan iborat bo'lishi kerak",
-                },
+                { required: true, message: t('settings.validation.name_req') },
+                { min: 2, message: t('settings.validation.name_min') },
               ]}
             >
               <Input
                 prefix={<UserOutlined className="text-muted-foreground" />}
-                placeholder="Ismingizni kiriting"
+                placeholder={t('settings.ph_full_name')}
                 size="large"
               />
             </Form.Item>
 
             <Form.Item
-              label="Username"
+              label={t('settings.username')}
               name="username"
               rules={[
-                { required: true, message: 'Iltimos, username kiriting!' },
-                {
-                  min: 3,
-                  message:
-                    "Username kamida 3 ta belgidan iborat bo'lishi kerak",
-                },
+                { required: true, message: t('settings.validation.user_req') },
+                { min: 3, message: t('settings.validation.user_min') },
               ]}
             >
               <Input
                 prefix={<MailOutlined className="text-muted-foreground" />}
-                placeholder="Username kiriting"
+                placeholder={t('settings.ph_username')}
                 size="large"
               />
             </Form.Item>
 
-            <Form.Item label="Avatar">
+            <Form.Item label={t('settings.avatar')}>
               <div className="flex items-center gap-4">
                 <Avatar
                   size={80}
-                  src={`${BASE_URL.DEV}${avatarUrl}`}
+                  src={avatarUrl ? `${BASE_URL.DEV}${avatarUrl}` : null}
                   icon={<UserOutlined />}
                   className="shrink-0"
                 />
@@ -195,12 +164,8 @@ export default function AdminSettingsPage() {
                     maxCount={1}
                     listType="text"
                   >
-                    <Button
-                      icon={<UploadOutlined />}
-                      loading={updateAvatar.isPending}
-                      size="large"
-                    >
-                      Avatar yuklash
+                    <Button icon={<UploadOutlined />} loading={updateAvatar.isPending} size="large">
+                      {t('settings.btn_upload_avatar')}
                     </Button>
                   </Upload>
                   {avatarUrl && (
@@ -211,7 +176,7 @@ export default function AdminSettingsPage() {
                       loading={deleteAvatar.isPending}
                       size="large"
                     >
-                      Avatarni o'chirish
+                      {t('settings.btn_delete_avatar')}
                     </Button>
                   )}
                 </div>
@@ -220,13 +185,11 @@ export default function AdminSettingsPage() {
 
             <Form.Item>
               <Button
-                type="primary"
-                htmlType="submit"
-                size="large"
+                type="primary" htmlType="submit" size="large"
                 loading={updateDetail.isPending}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-indigo-600 border-none"
               >
-                Ma'lumotlarni saqlash
+                {t('settings.btn_save_info')}
               </Button>
             </Form.Item>
           </Form>
@@ -238,7 +201,7 @@ export default function AdminSettingsPage() {
       label: (
         <span className="flex items-center gap-2">
           <LockOutlined />
-          Parolni o'zgartirish
+          {t('settings.tab_password')}
         </span>
       ),
       children: (
@@ -250,75 +213,62 @@ export default function AdminSettingsPage() {
             className="max-w-2xl"
           >
             <Form.Item
-              label="Joriy parol"
+              label={t('settings.current_password')}
               name="oldPassword"
-              rules={[
-                {
-                  required: true,
-                  message: 'Iltimos, joriy parolingizni kiriting!',
-                },
-              ]}
+              rules={[{ required: true, message: t('settings.validation.old_pass_req') }]}
             >
               <Input.Password
                 prefix={<LockOutlined className="text-muted-foreground" />}
-                placeholder="Joriy parolingizni kiriting"
+                placeholder={t('settings.ph_current_password')}
                 size="large"
               />
             </Form.Item>
 
             <Form.Item
-              label="Yangi parol"
+              label={t('settings.new_password')}
               name="newPassword"
               rules={[
-                { required: true, message: 'Iltimos, yangi parolni kiriting!' },
-                {
-                  min: 6,
-                  message: "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
-                },
+                { required: true, message: t('settings.validation.new_pass_req') },
+                { min: 6, message: t('settings.validation.pass_min') },
               ]}
             >
               <Input.Password
                 prefix={<LockOutlined className="text-muted-foreground" />}
-                placeholder="Yangi parolni kiriting"
+                placeholder={t('settings.ph_new_password')}
                 size="large"
               />
             </Form.Item>
 
             <Form.Item
-              label="Yangi parolni tasdiqlash"
+              label={t('settings.confirm_password')}
               name="confirmPassword"
               dependencies={['newPassword']}
               rules={[
-                {
-                  required: true,
-                  message: 'Iltimos, yangi parolni tasdiqlang!',
-                },
+                { required: true, message: t('settings.validation.confirm_req') },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('newPassword') === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('Parollar bir xil emas!'));
+                    return Promise.reject(new Error(t('settings.validation.pass_mismatch')));
                   },
                 }),
               ]}
             >
               <Input.Password
                 prefix={<LockOutlined className="text-muted-foreground" />}
-                placeholder="Yangi parolni qayta kiriting"
+                placeholder={t('settings.ph_confirm_password')}
                 size="large"
               />
             </Form.Item>
 
             <Form.Item>
               <Button
-                type="primary"
-                htmlType="submit"
-                size="large"
+                type="primary" htmlType="submit" size="large"
                 loading={updatePassword.isPending}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-indigo-600 border-none"
               >
-                Parolni o'zgartirish
+                {t('settings.btn_change_password')}
               </Button>
             </Form.Item>
           </Form>
@@ -333,9 +283,9 @@ export default function AdminSettingsPage() {
       <div className="min-h-screen bg-muted/30 p-6 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-5xl">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-foreground">Sozlamalar</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t('settings.title')}</h1>
             <p className="mt-2 text-muted-foreground">
-              Profil ma'lumotlaringizni va parolingizni boshqaring
+              {t('settings.subtitle')}
             </p>
           </div>
 

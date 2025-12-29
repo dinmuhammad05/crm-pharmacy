@@ -26,7 +26,6 @@ import {
   MedicineBoxOutlined,
   CalendarOutlined,
   HistoryOutlined,
-  InfoCircleOutlined,
   StockOutlined,
   RiseOutlined,
   EditOutlined,
@@ -34,27 +33,24 @@ import {
   DeploymentUnitOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-
-// Servislar
 import { useMedicineDetail } from './service/query/useMedicineDetail';
 import { useUpdateMedicine } from './service/mutation/useUpdateMedicine';
+import { useTranslation } from 'react-i18next'; // i18n import
 
 const { Title, Text } = Typography;
 
 const MedicineDetailPage: React.FC = () => {
+  const { t } = useTranslation(); // t funksiyasi
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
-  // Ma'lumotlarni yuklash
   const { data, isLoading } = useMedicineDetail(id!);
-  // Yangilash mutatsiyasi
   const { mutate: updateMedicine, isPending: isUpdating } = useUpdateMedicine();
 
   const medicine = data?.data;
 
-  // Modal ochilganda formani mavjud ma'lumotlar bilan to'ldirish
   useEffect(() => {
     if (medicine && isModalOpen) {
       form.setFieldsValue({
@@ -66,17 +62,16 @@ const MedicineDetailPage: React.FC = () => {
 
   if (isLoading)
     return <Card loading className="rounded-3xl border-none shadow-md" />;
-  
+
   if (!medicine)
     return (
       <div className="text-center p-10">
-        <Empty description="Dori topilmadi" />
+        <Empty description={t('medicine_detail.not_found')} />
       </div>
     );
 
   const isExpired = dayjs().isAfter(dayjs(medicine.expiryDate));
 
-  // Tahrirlashni saqlash
   const handleUpdateSubmit = (values: any) => {
     const payload = {
       ...values,
@@ -88,41 +83,55 @@ const MedicineDetailPage: React.FC = () => {
 
     updateMedicine(payload, {
       onSuccess: () => {
-        message.success("Ma'lumotlar muvaffaqiyatli yangilandi");
+        message.success(t('medicine_detail.msg_success'));
         setIsModalOpen(false);
       },
       onError: (err: any) => {
-          message.error(err?.response?.data?.message?.uz || 'Xatolik yuz berdi');
+        message.error(
+          err?.response?.data?.message?.uz || t('add_medicine.error_general'),
+        );
       },
     });
   };
 
   const historyColumns = [
     {
-      title: 'Sana',
+      title: t('daily_income.table.date'),
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (d: string) => <span className="whitespace-nowrap">{dayjs(d).format('DD.MM.YYYY HH:mm')}</span>,
+      render: (d: string) => (
+        <span className="whitespace-nowrap">
+          {dayjs(d).format('DD.MM.YYYY HH:mm')}
+        </span>
+      ),
     },
     {
-      title: "Qo'shilgan",
+      title: t('medicines.table.quantity'),
       dataIndex: 'addedQuantity',
       key: 'addedQuantity',
-      render: (q: number) => <Tag color="blue" className="whitespace-nowrap">+{q} pachka</Tag>,
+      render: (q: number) => (
+        <Tag color="blue" className="whitespace-nowrap">
+          +{q} {t('medicines.filter_no_unit')}
+        </Tag>
+      ),
     },
     {
-      title: 'Keltirilgan narx',
+      title: t('medicines.table.original_price'),
       dataIndex: 'originalPrice',
       key: 'originalPrice',
-      render: (p: number) => <span className="whitespace-nowrap">{Number(p).toLocaleString()} somoni</span>,
+      render: (p: number) => (
+        <span className="whitespace-nowrap">
+          {Number(p).toLocaleString()} {t('common.somoni')}
+        </span>
+      ),
     },
     {
-      title: 'Sotuv narxi',
+      title: t('medicines.table.price'),
       dataIndex: 'price',
       key: 'price',
       render: (p: number) => (
         <Text strong className="text-[#0d9488] whitespace-nowrap">
-          {Number(p).toLocaleString()} somoni
+          {Number(p).toLocaleString()} {t('common.somoni')}
         </Text>
       ),
     },
@@ -138,31 +147,36 @@ const MedicineDetailPage: React.FC = () => {
           type="text"
           className="hover:text-[#0d9488] font-medium text-teal-800 p-0 sm:p-2"
         >
-          <span className="hidden sm:inline">Ro'yxatga qaytish</span>
-          <span className="sm:hidden">Orqaga</span>
+          <span className="hidden sm:inline">{t('medicine_detail.back')}</span>
+          <span className="sm:hidden">{t('medicine_detail.back_mobile')}</span>
         </Button>
         <Space>
           <Button
             type="primary"
             icon={<EditOutlined />}
             onClick={() => setIsModalOpen(true)}
-            className="bg-[#0d9488] hover:bg-[#0f766e] border-none rounded-xl h-9 sm:h-10 px-4 sm:px-6 shadow-md shadow-teal-100 flex items-center"
+            className="bg-[#0d9488] hover:bg-[#0f766e] border-none rounded-xl h-9 sm:h-10 px-4 sm:px-6 shadow-md flex items-center"
           >
-            Tahrirlash
+            {t('medicine_detail.btn_edit')}
           </Button>
         </Space>
       </div>
 
       <Row gutter={[16, 16]}>
-        {/* Chap taraf: Statistika va Tarix */}
         <Col xs={24} lg={16}>
-          <Card className="shadow-xl rounded-2xl sm:rounded-3xl border-none bg-white min-h-full" bodyStyle={{ padding: '16px sm:padding-24px' }}>
-            <div className="flex flex-col sm:flex-row items-start gap-4 mb-6 sm:mb-8">
-              <div className="bg-gradient-to-br from-[#14b8a6] to-[#0d9488] p-4 sm:p-5 rounded-2xl shadow-lg shrink-0">
+          <Card
+            className="shadow-xl rounded-2xl sm:rounded-3xl border-none bg-white min-h-full"
+            bodyStyle={{ padding: '16px' }}
+          >
+            <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
+              <div className="bg-linear-to-br from-[#14b8a6] to-[#0d9488] p-4 sm:p-5 rounded-2xl shadow-lg shrink-0">
                 <MedicineBoxOutlined className="text-3xl sm:text-4xl text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <Title level={3} className="!mb-1 text-slate-800 break-words text-xl sm:text-2xl">
+                <Title
+                  level={3}
+                  className="mb-1! text-slate-800 wrap-break-word text-xl sm:text-2xl"
+                >
                   {medicine.name}
                 </Title>
                 <Space wrap className="text-slate-500 text-xs sm:text-sm">
@@ -171,53 +185,86 @@ const MedicineDetailPage: React.FC = () => {
                     color={isExpired ? 'error' : 'default'}
                     className="rounded-md m-0"
                   >
-                    Muddati: {dayjs(medicine.expiryDate).format('DD.MM.YYYY')}
+                    {t('medicine_detail.expiry')}:{' '}
+                    {dayjs(medicine.expiryDate).format('DD.MM.YYYY')}
                   </Tag>
-                  <span className="opacity-70">ID: {medicine.id}</span>
+                  <span className="opacity-70">
+                    {t('medicine_detail.id_label')}: {medicine.id}
+                  </span>
                 </Space>
               </div>
             </div>
 
             <Divider className="opacity-50 my-4" />
 
-            <Title level={4} className="mb-4 flex items-center gap-2 text-[#0f766e] text-lg">
-              <StockOutlined /> Qoldiq holati
+            <Title
+              level={4}
+              className="mb-4 flex items-center gap-2 text-[#0f766e] text-lg"
+            >
+              <StockOutlined /> {t('medicine_detail.stock_title')}
             </Title>
             <Row gutter={[12, 12]} className="mb-8">
               <Col xs={12} sm={8}>
                 <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-100 text-center h-full">
-                  <Statistic 
-                    title={<span className="text-xs sm:text-sm">Butun Pachkalar</span>} 
-                    value={medicine.quantity} 
-                    suffix={<small className="text-xs">ta</small>} 
+                  <Statistic
+                    title={
+                      <span className="text-xs sm:text-sm">
+                        {t('medicine_detail.stat_packs')}
+                      </span>
+                    }
+                    value={medicine.quantity}
+                    suffix={
+                      <small className="text-xs">
+                        {t('medicines.filter_no_unit')}
+                      </small>
+                    }
                     valueStyle={{ fontSize: '1.2rem' }}
                   />
                 </div>
               </Col>
               <Col xs={12} sm={8}>
                 <div className="bg-teal-50 p-4 sm:p-6 rounded-2xl border border-teal-100 text-center h-full">
-                  <Statistic 
-                    title={<span className="text-xs sm:text-sm">Ochilgan (Dona)</span>} 
-                    value={medicine.fractionalQuantity} 
-                    suffix={<small className="text-xs">dona</small>} 
+                  <Statistic
+                    title={
+                      <span className="text-xs sm:text-sm">
+                        {t('medicine_detail.stat_units')}
+                      </span>
+                    }
+                    value={medicine.fractionalQuantity}
+                    suffix={
+                      <small className="text-xs">
+                        {t('medicines.table.unit')}
+                      </small>
+                    }
                     valueStyle={{ fontSize: '1.2rem' }}
                   />
                 </div>
               </Col>
               <Col xs={24} sm={8}>
                 <div className="bg-emerald-50 p-4 sm:p-6 rounded-2xl border border-emerald-100 text-center text-emerald-700 h-full">
-                  <Statistic 
-                    title={<span className="text-xs sm:text-sm">Pachka sig'imi</span>} 
-                    value={medicine.unitCount} 
-                    suffix={<small className="text-xs">dona</small>} 
+                  <Statistic
+                    title={
+                      <span className="text-xs sm:text-sm">
+                        {t('medicine_detail.stat_capacity')}
+                      </span>
+                    }
+                    value={medicine.unitCount}
+                    suffix={
+                      <small className="text-xs">
+                        {t('medicines.table.unit')}
+                      </small>
+                    }
                     valueStyle={{ fontSize: '1.2rem' }}
                   />
                 </div>
               </Col>
             </Row>
 
-            <Title level={4} className="flex items-center gap-2 mb-4 text-[#0f766e] text-lg">
-              <HistoryOutlined /> Kelish tarixi
+            <Title
+              level={4}
+              className="flex items-center gap-2 mb-4 text-[#0f766e] text-lg"
+            >
+              <HistoryOutlined /> {t('medicine_detail.history_title')}
             </Title>
             <Table
               columns={historyColumns}
@@ -231,30 +278,44 @@ const MedicineDetailPage: React.FC = () => {
           </Card>
         </Col>
 
-        {/* O'ng taraf: Narxlar */}
+        {/* O'ng taraf */}
         <Col xs={24} lg={8}>
           <div className="space-y-4 md:space-y-6">
-            <Card className="shadow-xl rounded-2xl sm:rounded-3xl border-none bg-gradient-to-br from-[#0f766e] to-[#134e4a] text-white">
-              <Title level={4} className="!text-white mb-4 sm:mb-6 flex items-center gap-2 text-lg">
-                <RiseOutlined /> Narxlar
+            <Card className="shadow-xl rounded-2xl sm:rounded-3xl border-none bg-linear-to-br from-[#0f766e] to-[#134e4a] text-white">
+              <Title
+                level={4}
+                className="text-white! mb-4 sm:mb-6 flex items-center gap-2 text-lg"
+              >
+                <RiseOutlined /> {t('medicine_detail.prices_title')}
               </Title>
               <div className="space-y-3 sm:space-y-4">
                 <div className="bg-white/10 p-4 rounded-xl sm:rounded-2xl border border-white/10">
-                  <Text className="text-white/60 block text-[10px] sm:text-xs uppercase mb-1">Keltirilgan narxi (Pachka):</Text>
+                  <Text className="text-white/60 block text-[10px] sm:text-xs uppercase mb-1">
+                    {t('medicine_detail.cost_price')}:
+                  </Text>
                   <Text className="text-lg sm:text-xl font-bold text-white">
-                    {Number(medicine.originalPrice).toLocaleString()} somoni
+                    {Number(medicine.originalPrice).toLocaleString()}{' '}
+                    {t('common.somoni')}
                   </Text>
                 </div>
                 <div className="bg-white/10 p-4 rounded-xl sm:rounded-2xl border border-white/10">
-                  <Text className="text-white/60 block text-[10px] sm:text-xs uppercase mb-1">Sotish narxi (Pachka):</Text>
+                  <Text className="text-white/60 block text-[10px] sm:text-xs uppercase mb-1">
+                    {t('medicine_detail.sale_price')}:
+                  </Text>
                   <Text className="text-2xl sm:text-3xl font-extrabold text-white">
-                    {Number(medicine.price).toLocaleString()} somoni
+                    {Number(medicine.price).toLocaleString()}{' '}
+                    {t('common.somoni')}
                   </Text>
                 </div>
                 <div className="pt-3 sm:pt-4 border-t border-white/10 flex justify-between items-center text-xs">
-                  <Text className="text-white/60">Dona narxi:</Text>
+                  <Text className="text-white/60">
+                    {t('medicine_detail.unit_price')}:
+                  </Text>
                   <Text strong className="text-emerald-300">
-                    {Math.round(medicine.price / (medicine.unitCount || 1)).toLocaleString()} somoni
+                    {Math.round(
+                      medicine.price / (medicine.unitCount || 1),
+                    ).toLocaleString()}{' '}
+                    {t('common.somoni')}
                   </Text>
                 </div>
               </div>
@@ -262,10 +323,17 @@ const MedicineDetailPage: React.FC = () => {
 
             <Card className="shadow-lg rounded-2xl sm:rounded-3xl border-none text-center p-4 sm:p-6 bg-white">
               <DeploymentUnitOutlined className="text-3xl sm:text-4xl text-[#0d9488] mb-2 sm:mb-4" />
-              <Title level={5} className="text-slate-500 mb-0">Status</Title>
+              <Title level={5} className="text-slate-500 mb-0">
+                {t('medicines.table.status')}
+              </Title>
               <div className="mt-2">
-                <Tag color={medicine.isActive ? 'success' : 'default'} className="px-6 py-1 rounded-full font-bold">
-                  {medicine.isActive ? 'AKTIV' : 'NOAKTIV'}
+                <Tag
+                  color={medicine.isActive ? 'success' : 'default'}
+                  className="px-6 py-1 rounded-full font-bold"
+                >
+                  {medicine.isActive
+                    ? t('medicine_detail.status_active')
+                    : t('medicine_detail.status_inactive')}
                 </Tag>
               </div>
             </Card>
@@ -275,99 +343,136 @@ const MedicineDetailPage: React.FC = () => {
 
       {/* Tahrirlash Modali */}
       <Modal
-        title={<Title level={4} className="!m-0 text-[#0f766e]">Ma'lumotlarni yangilash</Title>}
+        title={
+          <Title level={4} className="m-0! text-[#0f766e]">
+            {t('medicine_detail.modal_title')}
+          </Title>
+        }
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
         width={750}
         centered
-        className="responsive-modal"
       >
-        <Form form={form} layout="vertical" onFinish={handleUpdateSubmit} className="mt-4 sm:mt-6">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleUpdateSubmit}
+          className="mt-4 sm:mt-6"
+        >
           <Row gutter={[12, 0]}>
             <Col span={24}>
-              <Form.Item name="name" label="Dori nomi" rules={[{ required: true, message: 'Nomini kiriting' }]}>
-                <Input size="large" className="rounded-xl h-11 sm:h-12" placeholder="Masalan: Aspirin" />
+              <Form.Item
+                name="name"
+                label={t('add_medicine.name_label')}
+                rules={[{ required: true, message: t('add_medicine.name_ph') }]}
+              >
+                <Input
+                  size="large"
+                  className="rounded-xl h-11"
+                  placeholder={t('add_medicine.name_ph')}
+                />
               </Form.Item>
             </Col>
 
             <Col xs={12} sm={8}>
-              <Form.Item name="quantity" label="Butun pachkalar" rules={[{ required: true }]}>
-                <InputNumber<number> className="w-full rounded-xl h-11 sm:h-12 flex items-center" min={0} />
+              <Form.Item
+                name="quantity"
+                label={t('medicine_detail.stat_packs')}
+                rules={[{ required: true }]}
+              >
+                <InputNumber
+                  className="w-full rounded-xl h-11 flex items-center"
+                  min={0}
+                />
               </Form.Item>
             </Col>
             <Col xs={12} sm={8}>
-              <Form.Item name="fractionalQuantity" label="Dona qoldiq" rules={[{ required: true }]}>
-                <InputNumber<number> className="w-full rounded-xl h-11 sm:h-12 flex items-center" min={0} />
+              <Form.Item
+                name="fractionalQuantity"
+                label={t('medicine_detail.stat_units')}
+                rules={[{ required: true }]}
+              >
+                <InputNumber
+                  className="w-full rounded-xl h-11 flex items-center"
+                  min={0}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} sm={8}>
-              <Form.Item name="unitCount" label="Pachka sig'imi" rules={[{ required: true }]}>
-                <InputNumber<number> className="w-full rounded-xl h-11 sm:h-12 flex items-center" min={1} />
+              <Form.Item
+                name="unitCount"
+                label={t('medicine_detail.stat_capacity')}
+                rules={[{ required: true }]}
+              >
+                <InputNumber
+                  className="w-full rounded-xl h-11 flex items-center"
+                  min={1}
+                />
               </Form.Item>
             </Col>
 
             <Col xs={24} sm={12}>
-              <Form.Item name="originalPrice" label="Kelish narxi (Pachka)">
-                <InputNumber<number>
-                  className="w-full rounded-xl h-11 sm:h-12 flex items-center"
+              <Form.Item
+                name="originalPrice"
+                label={t('medicine_detail.cost_price')}
+              >
+                <InputNumber
+                  className="w-full rounded-xl h-11 flex items-center"
                   min={0}
-                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                  parser={(value) => {
-                    const parsed = Number(value?.replace(/\s/g, ''));
-                    return isNaN(parsed) ? 0 : parsed;
-                  }}
-                  addonAfter={<small>somoni</small>}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+                  }
+                  addonAfter={<small>{t('common.somoni')}</small>}
                 />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item name="price" label="Sotish narxi (Pachka)">
-                <InputNumber<number>
-                  className="w-full rounded-xl h-11 sm:h-12 flex items-center"
+              <Form.Item name="price" label={t('medicine_detail.sale_price')}>
+                <InputNumber
+                  className="w-full rounded-xl h-11 flex items-center"
                   min={0}
-                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                  parser={(value) => {
-                    const parsed = Number(value?.replace(/\s/g, ''));
-                    return isNaN(parsed) ? 0 : parsed;
-                  }}
-                  addonAfter={<small>somoni</small>}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+                  }
+                  addonAfter={<small>{t('common.somoni')}</small>}
                 />
               </Form.Item>
             </Col>
 
             <Col span={24}>
-              <Form.Item name="expiryDate" label="Amal qilish muddati">
-                <DatePicker className="w-full rounded-xl h-11 sm:h-12" format="DD.MM.YYYY" placeholder="Sanani tanlang" />
+              <Form.Item
+                name="expiryDate"
+                label={t('add_medicine.expiry_label')}
+              >
+                <DatePicker
+                  className="w-full rounded-xl h-11"
+                  format="DD.MM.YYYY"
+                  placeholder={t('add_medicine.expiry_ph')}
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-6 sm:mt-8 border-t pt-6">
-            <Button onClick={() => setIsModalOpen(false)} className="rounded-xl px-8 h-10 sm:h-12 order-2 sm:order-1">Bekor qilish</Button>
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-6 border-t pt-6">
+            <Button
+              onClick={() => setIsModalOpen(false)}
+              className="rounded-xl px-8 h-10"
+            >
+              {t('common.cancel')}
+            </Button>
             <Button
               type="primary"
               icon={<SaveOutlined />}
               htmlType="submit"
               loading={isUpdating}
-              className="bg-[#0d9488] hover:bg-[#0f766e] border-none rounded-xl px-12 h-10 sm:h-12 font-bold shadow-lg text-white order-1 sm:order-2"
+              className="bg-[#0d9488] hover:bg-[#0f766e] border-none rounded-xl px-12 h-10 font-bold shadow-lg"
             >
-              Saqlash
+              {t('common.save')}
             </Button>
           </div>
         </Form>
       </Modal>
-
-      <style>{`
-        .ant-statistic-content-value { font-weight: 800; color: #0f766e; }
-        .ant-table-thead > tr > th { background-color: #f0fdfa !important; color: #0f766e !important; }
-        .ant-modal-content { border-radius: 20px !important; padding: 16px !important; }
-        @media (min-width: 640px) {
-          .ant-modal-content { border-radius: 28px !important; padding: 24px !important; }
-        }
-        .ant-input-number-input { height: 100% !important; display: flex; align-items: center; }
-        .ant-table-wrapper { width: 100%; overflow: hidden; }
-      `}</style>
     </div>
   );
 };

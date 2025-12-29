@@ -28,10 +28,12 @@ import {
 } from './service/mutation/useSales';
 import { useGetActiveShift } from './service/query/useSalesQuery';
 import { type ICartItem, SaleType, type IGetListMedicine } from './type';
+import { useTranslation } from 'react-i18next'; 
 
 const { Title, Text } = Typography;
 
 const SalesPage: React.FC = () => {
+  const { t } = useTranslation(); // t funksiyasi
   const [search, setSearch] = useState('');
   const [cart, setCart] = useState<ICartItem[]>([]);
   const [manualTotal, setManualTotal] = useState<number>(0);
@@ -62,7 +64,7 @@ const SalesPage: React.FC = () => {
       try {
         setCart(JSON.parse(savedCart));
       } catch (e) {
-        console.error('Savatchani yuklashda xatolik:', e);
+        console.error(e);
       }
     }
   }, []);
@@ -76,10 +78,10 @@ const SalesPage: React.FC = () => {
       startShift();
     } else {
       Modal.confirm({
-        title: 'Smenani yopmoqchimisiz?',
-        content: "Smena yopilgandan keyin savdo qilib bo'lmaydi.",
-        okText: 'Yopish',
-        cancelText: 'Bekor qilish',
+        title: t('sales.confirm_close_title'),
+        content: t('sales.confirm_close_desc'),
+        okText: t('sales.btn_close_shift'),
+        cancelText: t('common.cancel'),
         onOk: () => endShift(),
       });
     }
@@ -87,11 +89,11 @@ const SalesPage: React.FC = () => {
 
   const addToCart = (medicine: IGetListMedicine) => {
     if (!isShiftActive) {
-      message.warning('Avval smenani oching!');
+      message.warning(t('sales.msg_open_shift'));
       return;
     }
     if (medicine.quantity <= 0 && medicine.fractionalQuantity <= 0) {
-      message.error('Bu dori qolmagan!');
+      message.error(t('sales.msg_out_of_stock'));
       return;
     }
 
@@ -152,21 +154,26 @@ const SalesPage: React.FC = () => {
     if (cart.length === 0) return;
 
     Modal.confirm({
-      title: 'Sotuvni tasdiqlash',
+      title: t('sales.checkout_confirm'),
       content: (
         <div className="py-2">
           <p>
-            Tizim bo'yicha: <b>{systemTotal.toLocaleString()} somoni</b>
+            {t('sales.system_total')}:{' '}
+            <b>
+              {systemTotal.toLocaleString()} {t('common.somoni')}
+            </b>
           </p>
           <p>
-            Sotilmoqda:{' '}
+            {t('sales.selling_price')}:{' '}
             <b className="text-teal-600">
-              {manualTotal.toLocaleString()} somoni
+              {manualTotal.toLocaleString()} {t('common.somoni')}
             </b>
           </p>
           {systemTotal !== manualTotal && (
             <p className="text-red-500 text-xs">
-              Farq: {(manualTotal - systemTotal).toLocaleString()} somoni
+              {t('sales.difference')}:{' '}
+              {(manualTotal - systemTotal).toLocaleString()}{' '}
+              {t('common.somoni')}
             </p>
           )}
         </div>
@@ -185,7 +192,7 @@ const SalesPage: React.FC = () => {
             onSuccess: () => {
               setCart([]);
               localStorage.removeItem('pharmacy_cart');
-              message.success('Sotuv muvaffaqiyatli amalga oshirildi');
+              message.success(t('sales.checkout_success'));
             },
           },
         );
@@ -194,12 +201,10 @@ const SalesPage: React.FC = () => {
   };
 
   return (
-    // ASOSIY KONTEYNER: Mobilda flex-col, Kompyuterda flex-row
     <div className="min-h-screen flex flex-col lg:flex-row gap-4 lg:gap-6 p-3 lg:p-6 bg-gray-50">
-      {/* Chap taraf - Dorilar Ro'yxati */}
       <div className="flex-1 flex flex-col gap-4 min-w-0">
         <Card
-          className={`shadow-md border-0 bg-gradient-to-r ${
+          className={`shadow-md border-0 bg-linear-to-r ${
             isShiftActive
               ? 'from-emerald-500 to-teal-600'
               : 'from-slate-600 to-slate-700'
@@ -215,12 +220,14 @@ const SalesPage: React.FC = () => {
               )}
               <div>
                 <Title level={4} style={{ color: 'white', margin: 0 }}>
-                  Smena {isShiftActive ? 'Ochiq' : 'Yopiq'}
+                  {isShiftActive
+                    ? t('sales.shift_open')
+                    : t('sales.shift_closed')}
                 </Title>
                 <Text style={{ color: 'rgba(255,255,255,0.8)' }}>
                   {isShiftActive
-                    ? 'Sotuv qilishingiz mumkin'
-                    : 'Avval smenani oching'}
+                    ? t('sales.shift_can_sell')
+                    : t('sales.shift_open_first')}
                 </Text>
               </div>
             </div>
@@ -232,7 +239,9 @@ const SalesPage: React.FC = () => {
               type="primary"
               className="w-full sm:w-auto"
             >
-              {isShiftActive ? 'Smenani Yopish' : 'Smenani Ochish'}
+              {isShiftActive
+                ? t('sales.btn_close_shift')
+                : t('sales.btn_open_shift')}
             </Button>
           </div>
         </Card>
@@ -240,7 +249,7 @@ const SalesPage: React.FC = () => {
         <Card className="shadow-sm" bodyStyle={{ padding: 12 }}>
           <Input
             size="large"
-            placeholder="Dori nomini qidirish..."
+            placeholder={t('sales.search_ph')}
             prefix={<SearchOutlined className="text-teal-500" />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -255,12 +264,11 @@ const SalesPage: React.FC = () => {
             dataSource={medicinesData?.data || []}
             rowKey="id"
             loading={isLoading}
-            // JADVAL MOBILDA SURILADIGAN BO'LISHI UCHUN
             scroll={{ x: 800 }}
             pagination={{
               pageSize: 50,
               size: 'small',
-              showTotal: (total) => `Jami: ${total}`,
+              showTotal: (total) => `${t('sidebar.home')}: ${total}`,
             }}
             onRow={(record) => ({
               onClick: () => addToCart(record),
@@ -268,40 +276,52 @@ const SalesPage: React.FC = () => {
             })}
             columns={[
               {
-                title: 'Dori nomi',
+                title: t('sales.table.name'),
                 dataIndex: 'name',
                 key: 'name',
                 fixed: 'left',
                 render: (t) => <Text strong>{t}</Text>,
               },
               {
-                title: 'Butun',
+                title: t('sales.table.full'),
                 dataIndex: 'quantity',
                 key: 'quantity',
                 width: 100,
-                render: (q) => <Tag color="blue">{q} pachka</Tag>,
+                render: (q) => (
+                  <Tag color="blue">
+                    {q} {t('medicines.filter_no_unit')}
+                  </Tag>
+                ),
               },
               {
-                title: "Sig'imi",
+                title: t('sales.table.capacity'),
                 dataIndex: 'unitCount',
                 key: 'unitCount',
                 width: 120,
-                render: (c) => <Tag color="purple">{c} dona</Tag>,
+                render: (c) => (
+                  <Tag color="purple">
+                    {c} {t('medicines.table.unit')}
+                  </Tag>
+                ),
               },
               {
-                title: "Dona qoldig'i",
+                title: t('sales.table.remnant'),
                 dataIndex: 'fractionalQuantity',
                 key: 'fq',
                 width: 130,
-                render: (q) => <Tag color="orange">{q} dona</Tag>,
+                render: (q) => (
+                  <Tag color="orange">
+                    {q} {t('medicines.table.unit')}
+                  </Tag>
+                ),
               },
               {
-                title: 'Narx (Pachka)',
+                title: t('sales.table.price_pack'),
                 dataIndex: 'price',
                 key: 'price',
                 render: (p) => (
                   <Text strong className="text-teal-600 whitespace-nowrap">
-                    {p.toLocaleString()} somoni
+                    {p.toLocaleString()} {t('common.somoni')}
                   </Text>
                 ),
               },
@@ -331,24 +351,19 @@ const SalesPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* O'ng taraf - Savatcha va To'lov: Mobilda 100%, Desktobda 450px */}
-      <div className="w-full lg:w-[450px] flex flex-col gap-4">
+      <div className="w-full lg:w-112.5 flex flex-col gap-4">
         <Card
           className="flex-1 shadow-lg border-t-4 border-teal-500 flex flex-col"
           title={
             <Space>
-              <ShoppingCartOutlined className="text-teal-600" /> Savatcha (
-              {cart.length})
+              <ShoppingCartOutlined className="text-teal-600" />{' '}
+              {t('sales.cart_title')} ({cart.length})
             </Space>
           }
-          bodyStyle={{
-            padding: 16,
-            overflowY: 'auto',
-            maxHeight: '60vh', // Mobilda juda uzayib ketmasligi uchun
-          }}
+          bodyStyle={{ padding: 16, overflowY: 'auto', maxHeight: '60vh' }}
         >
           {cart.length === 0 ? (
-            <Empty description="Savatcha bo'sh" />
+            <Empty description={t('sales.cart_empty')} />
           ) : (
             <Space direction="vertical" className="w-full" size="middle">
               {cart.map((item) => (
@@ -375,7 +390,7 @@ const SalesPage: React.FC = () => {
                         className="mb-2 block whitespace-nowrap"
                       >
                         <Radio.Button value={SaleType.PACK}>
-                          Pachka
+                          {t('sales.pack')}
                         </Radio.Button>
                         <Radio.Button
                           value={SaleType.UNIT}
@@ -384,7 +399,7 @@ const SalesPage: React.FC = () => {
                             item.medicine.unitCount <= 1
                           }
                         >
-                          Dona
+                          {t('sales.unit')}
                         </Radio.Button>
                       </Radio.Group>
                       <div className="flex items-center gap-2">
@@ -424,28 +439,29 @@ const SalesPage: React.FC = () => {
           )}
         </Card>
 
-        {/* Yakuniy To'lov Card */}
         <Card className="shadow-lg border-2 border-teal-500 bg-white sticky bottom-0 z-10 lg:relative">
           <div className="space-y-4">
             <div className="flex justify-between text-gray-500 text-xs sm:text-sm">
-              <Text>Tizim hisobi:</Text>
+              <Text>{t('sales.system_account')}:</Text>
               <Text delete={manualTotal !== systemTotal}>
-                {systemTotal.toLocaleString()} somoni
+                {systemTotal.toLocaleString()} {t('common.somoni')}
               </Text>
             </div>
             <div className="flex justify-between items-center gap-2">
               <Text strong className="text-sm sm:text-lg whitespace-nowrap">
-                To'lov summasi:
+                {t('sales.payment_amount')}:
               </Text>
               <InputNumber
-                className="flex-1 lg:!w-44 !border-teal-400"
+                className="flex-1 lg:w-44! border-teal-400!"
                 size="large"
                 value={manualTotal}
                 onChange={(v) => setManualTotal(Number(v) || 0)}
                 formatter={(value) =>
                   `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
                 }
-                addonAfter={<span className="hidden sm:inline">somoni</span>}
+                addonAfter={
+                  <span className="hidden sm:inline">{t('common.somoni')}</span>
+                }
               />
             </div>
             <Button
@@ -455,10 +471,10 @@ const SalesPage: React.FC = () => {
               disabled={!isShiftActive || cart.length === 0}
               loading={isCheckingOut}
               onClick={handleCheckout}
-              className="!h-12 sm:!h-14 text-base sm:text-lg bg-teal-600 hover:bg-teal-700 border-none"
+              className="h-12! sm:h-14! text-base sm:text-lg bg-teal-600 hover:bg-teal-700 border-none"
               icon={<CheckCircleOutlined />}
             >
-              Sotishni Tasdiqlash
+              {t('sales.btn_confirm_sale')}
             </Button>
           </div>
         </Card>

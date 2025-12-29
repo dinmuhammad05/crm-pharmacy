@@ -21,10 +21,12 @@ import {
 } from '@ant-design/icons';
 import { useStatistics } from './service/query/useStatistics';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next'; // i18n hook
 
 const { Title, Text } = Typography;
 
 const Home: React.FC = () => {
+  const { t } = useTranslation(); // t funksiyasi
   const { data, isLoading } = useStatistics();
 
   if (isLoading)
@@ -35,7 +37,7 @@ const Home: React.FC = () => {
     );
 
   if (!data)
-    return <Empty className="mt-20" description="Ma'lumot topilmadi" />;
+    return <Empty className="mt-20" description={t('common.no_data')} />;
 
   return (
     <div className="p-3 sm:p-6 space-y-6 bg-slate-50 min-h-screen animate-in fade-in duration-700">
@@ -43,21 +45,21 @@ const Home: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
         <Title
           level={window.innerWidth < 640 ? 4 : 2}
-          className="!m-0 text-slate-800"
+          className="m-0! text-slate-800"
         >
-          Tizim Statistikasi
+          {t('home.page_title')}
         </Title>
         <Text type="secondary" className="text-xs sm:text-sm">
-          So'nggi yangilanish: {dayjs().format('DD.MM.YYYY, HH:mm')}
+          {t('home.last_update')}: {dayjs().format('DD.MM.YYYY, HH:mm')}
         </Text>
       </div>
 
       {/* 1. Yuqori Kartalar - Asosiy ko'rsatkichlar */}
       <Row gutter={[16, 16] }>
         <Col xs={24} sm={12} lg={6}>
-          <Card className="rounded-2xl  shadow-sm ">
+          <Card className="rounded-2xl shadow-sm">
             <Statistic
-              title="Umumiy Dorilar"
+              title={t('home.total_medicines')}
               value={data.totalMedicines}
               valueStyle={{ color: '#0d9488', fontWeight: 'bold' }}
               prefix={<MedicineBoxOutlined />}
@@ -67,10 +69,10 @@ const Home: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card className="rounded-2xl border-none shadow-sm bg-white">
             <Statistic
-              title="Oylik Savdo"
+              title={t('home.monthly_sales')}
               value={data.monthly}
               valueStyle={{ color: '#0d9488', fontWeight: 'bold' }}
-              suffix="somoni"
+              suffix={t('common.somoni')}
               prefix={<RiseOutlined />}
             />
           </Card>
@@ -78,10 +80,10 @@ const Home: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card className="rounded-2xl border-none shadow-sm bg-white">
             <Statistic
-              title="Haftalik Savdo"
+              title={t('home.weekly_sales')}
               value={data.weekly}
               valueStyle={{ color: '#0891b2', fontWeight: 'bold' }}
-              suffix="somoni"
+              suffix={t('common.somoni')}
               prefix={<DollarCircleOutlined />}
             />
           </Card>
@@ -90,11 +92,11 @@ const Home: React.FC = () => {
           <Card className="rounded-2xl border-none shadow-sm bg-slate-800 text-white">
             <Statistic
               title={
-                <span className="text-slate-400">Tan narxi (Inventar)</span>
+                <span className="text-slate-400">{t('home.inventory_cost')}</span>
               }
               value={data.inventoryValue.totalOriginalValue}
               valueStyle={{ color: '#10b981', fontWeight: 'bold' }}
-              suffix="somoni"
+              suffix={t('common.somoni')}
             />
           </Card>
         </Col>
@@ -105,9 +107,9 @@ const Home: React.FC = () => {
         <Row gutter={[24, 24]} align="middle">
           <Col xs={24} md={8}>
             <Statistic
-              title="Sotish narxi bo'yicha jami"
+              title={t('home.total_sale_value')}
               value={data.inventoryValue.totalSaleValue}
-              suffix="somoni"
+              suffix={t('common.somoni')}
               valueStyle={{ fontSize: '1.25rem' }}
             />
           </Col>
@@ -115,13 +117,13 @@ const Home: React.FC = () => {
             <Statistic
               title={
                 <Text strong className="text-emerald-700">
-                  Kutilayotgan Sof Foyda
+                  {t('home.expected_profit')}
                 </Text>
               }
               value={data.inventoryValue.expectedProfit}
               valueStyle={{ color: '#059669', fontWeight: 'bold' }}
               prefix={<RiseOutlined />}
-              suffix="somoni"
+              suffix={t('common.somoni')}
             />
           </Col>
           <Col xs={24} md={8}>
@@ -130,8 +132,7 @@ const Home: React.FC = () => {
                 type="secondary"
                 className="text-xs italic leading-tight block"
               >
-                * Bu summa dorixonadagi barcha dorilar (pachka va donalar)
-                to'liq sotilganda olinadigan sof foyda hisoblanadi.
+                {t('home.profit_hint')}
               </Text>
             </div>
           </Col>
@@ -145,7 +146,7 @@ const Home: React.FC = () => {
             title={
               <Space>
                 <MedicineBoxOutlined />
-                <span>Eng ko'p sotilgan</span>
+                <span>{t('home.top_selling')}</span>
               </Space>
             }
             className="rounded-2xl shadow-sm h-full border-none"
@@ -162,7 +163,7 @@ const Home: React.FC = () => {
                       color="blue"
                       className="rounded-md border-none px-3 font-medium"
                     >
-                      {item.totalCount} ta
+                      {item.totalCount} {t('common.pcs')}
                     </Tag>
                   </div>
                 </List.Item>
@@ -176,7 +177,7 @@ const Home: React.FC = () => {
             title={
               <Space>
                 <WalletOutlined />
-                <span>Katta qarzdorliklar</span>
+                <span>{t('home.big_debts')}</span>
               </Space>
             }
             className="rounded-2xl shadow-sm h-full border-none"
@@ -189,7 +190,7 @@ const Home: React.FC = () => {
                     <Text className="text-slate-600">{item.name}</Text>
                     <Text type="danger" strong>
                       {item.debt.toLocaleString()}{' '}
-                      <small className="font-normal">so'm</small>
+                      <small className="font-normal">{t('common.som')}</small>
                     </Text>
                   </div>
                 </List.Item>
@@ -203,7 +204,7 @@ const Home: React.FC = () => {
             title={
               <Space>
                 <HistoryOutlined />
-                <span>So'nggi Smenalar</span>
+                <span>{t('home.last_shifts')}</span>
               </Space>
             }
             className="rounded-2xl shadow-sm h-full border-none"
@@ -223,7 +224,7 @@ const Home: React.FC = () => {
                       </Text>
                     </div>
                     <Tag color="cyan" className="rounded-md border-none px-3">
-                      {shift.totalCash.toLocaleString()} so'm
+                      {shift.totalCash.toLocaleString()} {t('common.som')}
                     </Tag>
                   </div>
                 </List.Item>

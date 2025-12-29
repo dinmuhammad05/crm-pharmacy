@@ -1,6 +1,7 @@
 'use client';
 
 import type React from 'react';
+import { useState, useEffect } from 'react';
 import {
   Table,
   Card,
@@ -13,9 +14,7 @@ import {
   InputNumber,
   message,
   Switch,
-  Typography,
 } from 'antd';
-import { useState, useEffect } from 'react';
 import {
   MedicineBoxOutlined,
   CalendarOutlined,
@@ -33,18 +32,20 @@ import { useMedicineList } from '../service/query/useMedicineList';
 import { useUpdateUnitCounts } from '../service/mutation/useUpdateUnitCountseC';
 import type { IGetListMedicine, IUpdateMedicineUnitCounts } from '../type';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // i18n import
 
-const { Text } = Typography;
 
 interface MedicinesTableProps {
   handleClick?: (record: IGetListMedicine) => void;
 }
 
 const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
+  const { t } = useTranslation(); // t funksiyasi
   const navigate = useNavigate();
   const handleClick = (id: string) => {
     navigate('/medicine/' + id);
   };
+
   const [pagination, setPagination] = useState({ page: 1, pageSize: 20 });
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -53,7 +54,6 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
     Record<string, number>
   >({});
   const [onlyWithoutUnitCount, setOnlyWithoutUnitCount] = useState(false);
-  // qolmagan dorilar uchun 
   const [onlyWithCount, setOnlyWithCount] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -61,7 +61,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
     ...pagination,
     query: debouncedQuery || undefined,
     onlyWithoutUnitCount: onlyWithoutUnitCount || undefined,
-    onlyWithCount: onlyWithCount || undefined
+    onlyWithCount: onlyWithCount || undefined,
   });
 
   const { mutate: updateUnitCounts } = useUpdateUnitCounts();
@@ -71,7 +71,6 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
       setDebouncedQuery(searchQuery);
       setPagination((prev) => ({ ...prev, page: 1 }));
     }, 1000);
-
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
@@ -80,7 +79,6 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
       setEditedUnitCounts((prev) => ({ ...prev, [id]: value }));
     }
   };
-  
 
   const handleSave = () => {
     const updates: IUpdateMedicineUnitCounts[] = Object.entries(
@@ -91,19 +89,19 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
     }));
 
     if (updates.length === 0) {
-      message.warning("Hech qanday o'zgarish kiritilmagan");
+      message.warning(t('medicines.msg_no_changes'));
       return;
     }
 
     setIsUpdating(true);
     updateUnitCounts(updates, {
       onSuccess: () => {
-        message.success('Unit countlar muvaffaqiyatli yangilandi');
+        message.success(t('medicines.msg_success'));
         setIsEditMode(false);
         setEditedUnitCounts({});
       },
       onError: () => {
-        message.error('Xatolik yuz berdi');
+        message.error(t('medicines.msg_error'));
       },
       onSettled: () => {
         setIsUpdating(false);
@@ -111,20 +109,15 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
     });
   };
 
-  const handleCancel = () => {
-    setIsEditMode(false);
-    setEditedUnitCounts({});
-  };
-
   const columns = [
     {
-      title: 'Dori nomi',
+      title: t('medicines.table.name'),
       dataIndex: 'name',
       key: 'name',
       width: 200,
       render: (name: string) => (
         <Space>
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#10b981] to-[#0891b2] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-[#10b981] to-[#0891b2] flex items-center justify-center shrink-0">
             <MedicineBoxOutlined
               style={{ color: 'white' }}
               className="text-white text-sm"
@@ -137,7 +130,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
       ),
     },
     {
-      title: 'Narxi',
+      title: t('medicines.table.price'),
       dataIndex: 'price',
       key: 'price',
       width: 130,
@@ -145,24 +138,24 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
         <Space className="whitespace-nowrap">
           <DollarOutlined className="text-[#10b981]" />
           <span className="font-semibold text-[#059669]">
-            {price.toLocaleString()} somoni
+            {price.toLocaleString()} {t('common.somoni')}
           </span>
         </Space>
       ),
     },
     {
-      title: 'Asl narxi',
+      title: t('medicines.table.original_price'),
       dataIndex: 'originalPrice',
       key: 'originalPrice',
       width: 130,
       render: (originalPrice: number) => (
         <span className="text-[#6b7280] whitespace-nowrap">
-          {originalPrice.toLocaleString()} somoni
+          {originalPrice.toLocaleString()} {t('common.somoni')}
         </span>
       ),
     },
     {
-      title: 'Miqdori',
+      title: t('medicines.table.quantity'),
       dataIndex: 'quantity',
       key: 'quantity',
       width: 120,
@@ -174,20 +167,22 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
           }
           className="px-3 py-1 rounded-lg font-semibold whitespace-nowrap"
         >
-          {quantity} dona
+          {quantity} {t('medicines.table.unit')}
         </Tag>
       ),
     },
     {
-      title: 'Amal qilish muddati',
+      title: t('medicines.table.expiry_date'),
       dataIndex: 'expiryDate',
       key: 'expiryDate',
       width: 160,
       render: (expiryDate: string | null) => {
-        if (!expiryDate) {
-          return <span className="text-[#9ca3af]">Kiritilmagan</span>;
-        }
-
+        if (!expiryDate)
+          return (
+            <span className="text-[#9ca3af]">
+              {t('medicines.table.not_entered')}
+            </span>
+          );
         const expiry = dayjs(expiryDate);
         const daysUntilExpiry = expiry.diff(dayjs(), 'day');
         const isExpired = daysUntilExpiry < 0;
@@ -220,7 +215,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
       },
     },
     {
-      title: 'Holati',
+      title: t('medicines.table.status'),
       dataIndex: 'isActive',
       key: 'isActive',
       width: 110,
@@ -230,12 +225,14 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
           color={isActive ? 'success' : 'default'}
           className="px-3 py-1 rounded-lg font-semibold whitespace-nowrap"
         >
-          {isActive ? 'Faol' : 'Nofaol'}
+          {isActive
+            ? t('medicines.table.active')
+            : t('medicines.table.inactive')}
         </Tag>
       ),
     },
     {
-      title: 'Yaratilgan sana',
+      title: t('medicines.table.created_at'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 170,
@@ -246,7 +243,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
       ),
     },
     {
-      title: 'Unit Count',
+      title: t('medicines.table.unit_count'),
       dataIndex: 'unitCount',
       key: 'unitCountEdit',
       width: 150,
@@ -258,7 +255,6 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
               value={editedUnitCounts[record.id] ?? unitCount ?? 0}
               onChange={(value) => handleUnitCountChange(record.id, value)}
               className="w-full"
-              placeholder="Kiriting"
             />
           );
         }
@@ -267,12 +263,14 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
             {unitCount}
           </span>
         ) : (
-          <span className="text-[#9ca3af]">Kiritilmagan</span>
+          <span className="text-[#9ca3af]">
+            {t('medicines.table.not_entered')}
+          </span>
         );
       },
     },
     {
-      title: 'Shtuklarda soni',
+      title: t('medicines.table.unit_display'),
       dataIndex: 'unitCount',
       key: 'unitCountDisplay',
       width: 140,
@@ -290,7 +288,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
         <Card className="w-full max-w-7xl shadow-xl rounded-2xl border-2 border-[#d1fae5] flex flex-col items-center justify-center py-20">
           <Spin size="large" />
           <p className="mt-4 text-[#6b7280] font-medium">
-            Dorilar yuklanmoqda...
+            {t('medicines.loading')}
           </p>
         </Card>
       </div>
@@ -299,17 +297,15 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f0fdf4] via-[#f0f9ff] to-[#f0fdf4] p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-[#f0fdf4] via-[#f0f9ff] to-[#f0fdf4] p-4 md:p-8 flex items-center justify-center">
         <Card className="w-full max-w-7xl shadow-xl rounded-2xl border-2 border-red-200">
           <Empty
             description={
               <div className="text-center">
                 <p className="text-red-500 font-semibold text-lg mb-2">
-                  Xatolik yuz berdi
+                  {t('medicines.error_title')}
                 </p>
-                <p className="text-[#6b7280]">
-                  Dorilar ro'yxatini yuklashda muammo yuz berdi
-                </p>
+                <p className="text-[#6b7280]">{t('medicines.error_desc')}</p>
               </div>
             }
           />
@@ -321,25 +317,22 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
   const medicines = data?.data || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0fdf4] via-[#f0f9ff] to-[#f0fdf4] p-3 sm:p-4 md:p-8">
+    <div className="min-h-screen bg-linear-to-br from-[#f0fdf4] via-[#f0f9ff] to-[#f0fdf4] p-3 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-[#10b981] to-[#0891b2] flex items-center justify-center shadow-lg shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-[#10b981] to-[#0891b2] flex items-center justify-center shadow-lg shrink-0">
                 <MedicineBoxOutlined className="text-xl sm:text-2xl text-white" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-[#059669] to-[#0d9488] bg-clip-text text-transparent">
-                  Dorilar Ro'yxati
+                <h1 className="text-xl sm:text-3xl font-bold bg-linear-to-r from-[#059669] to-[#0d9488] bg-clip-text text-transparent">
+                  {t('medicines.title')}
                 </h1>
                 <p className="text-[#6b7280] text-sm">
-                  Jami:{' '}
-                  <span className="font-semibold text-[#374151]">
-                    {data?.totalElements || 0}
-                  </span>{' '}
-                  ta dori
+                  {t('medicines.total_count', {
+                    count: data?.totalElements || 0,
+                  })}
                 </p>
               </div>
             </div>
@@ -351,20 +344,19 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
                   icon={<EditOutlined />}
                   size="large"
                   onClick={() => setIsEditMode(true)}
-                  className="w-full sm:w-auto bg-gradient-to-r from-[#10b981] to-[#0891b2] border-none shadow-lg hover:shadow-xl transition-all"
+                  className="w-full sm:w-auto bg-linear-to-r from-[#10b981] to-[#0891b2] border-none shadow-lg hover:shadow-xl transition-all"
                 >
-                  Unit Count Tahrirlash
+                  {t('medicines.btn_edit_unit')}
                 </Button>
               ) : (
                 <Space className="w-full sm:w-auto justify-end">
                   <Button
                     icon={<CloseOutlined />}
                     size="large"
-                    onClick={handleCancel}
+                    onClick={() => setIsEditMode(false)}
                     disabled={isUpdating}
-                    className="flex-1 sm:flex-none"
                   >
-                    Bekor
+                    {t('medicines.btn_cancel')}
                   </Button>
                   <Button
                     type="primary"
@@ -372,9 +364,9 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
                     size="large"
                     onClick={handleSave}
                     loading={isUpdating}
-                    className="flex-1 sm:flex-none bg-gradient-to-r from-[#10b981] to-[#0891b2] border-none shadow-lg hover:shadow-xl transition-all"
+                    className="bg-linear-to-r from-[#10b981] to-[#0891b2] border-none shadow-lg"
                   >
-                    Saqlash
+                    {t('medicines.btn_save')}
                   </Button>
                 </Space>
               )}
@@ -382,7 +374,6 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
           </div>
         </div>
 
-        {/* Search and Filters */}
         <div className="mb-6">
           <Card
             className="shadow-lg rounded-xl border-2 border-[#d1fae5]"
@@ -391,7 +382,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
             <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
               <Input
                 size="large"
-                placeholder="Dori nomini kiriting..."
+                placeholder={t('medicines.search_ph')}
                 prefix={<SearchOutlined className="text-[#10b981]" />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -402,42 +393,35 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
               <div className="flex items-center gap-2 whitespace-nowrap justify-center md:justify-start bg-slate-50 p-2 rounded-lg border border-slate-100">
                 <Switch
                   checked={onlyWithoutUnitCount}
-                  onChange={(checked) => {
-                    setOnlyWithoutUnitCount(checked);
-                    setPagination((p) => ({ ...p, page: 1 }));
-                  }}
+                  onChange={(checked) => setOnlyWithoutUnitCount(checked)}
                   disabled={isEditMode}
                 />
                 <span className="text-sm text-[#374151] font-medium">
-                  pachka kiritilmagan
+                  {t('medicines.filter_no_unit')}
                 </span>
               </div>
               <div className="flex items-center gap-2 whitespace-nowrap justify-center md:justify-start bg-slate-50 p-2 rounded-lg border border-slate-100">
                 <Switch
                   checked={onlyWithCount}
-                  onChange={(checked) => {
-                    setOnlyWithCount(checked);
-                    setPagination((p) => ({ ...p, page: 1 }));
-                  }}
+                  onChange={(checked) => setOnlyWithCount(checked)}
                   disabled={isEditMode}
                 />
                 <span className="text-sm text-[#374151] font-medium">
-                  qolmagan dorilar
+                  {t('medicines.filter_out_of_stock')}
                 </span>
               </div>
             </div>
           </Card>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
           <Card
-            className="shadow-lg rounded-xl border-2 border-[#d1fae5] hover:border-[#10b981] transition-all"
-            bodyStyle={{ padding: '12px sm:padding-24' }}
+            className="shadow-lg rounded-xl border-2 border-[#d1fae5]"
+            bodyStyle={{ padding: '12px' }}
           >
             <div className="text-center">
               <p className="text-[#6b7280] text-xs sm:text-sm mb-1">
-                Jami dorilar
+                {t('medicines.stat_total')}
               </p>
               <p className="text-xl sm:text-3xl font-bold text-[#059669]">
                 {data?.totalElements || 0}
@@ -445,12 +429,12 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
             </div>
           </Card>
           <Card
-            className="shadow-lg rounded-xl border-2 border-[#d1fae5] hover:border-[#10b981] transition-all"
-            bodyStyle={{ padding: '12px sm:padding-24' }}
+            className="shadow-lg rounded-xl border-2 border-[#d1fae5]"
+            bodyStyle={{ padding: '12px' }}
           >
             <div className="text-center">
               <p className="text-[#6b7280] text-xs sm:text-sm mb-1">
-                Sahifalar
+                {t('medicines.stat_pages')}
               </p>
               <p className="text-xl sm:text-3xl font-bold text-[#0891b2]">
                 {data?.totalPages || 0}
@@ -458,12 +442,12 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
             </div>
           </Card>
           <Card
-            className="shadow-lg rounded-xl border-2 border-[#d1fae5] hover:border-[#10b981] transition-all"
-            bodyStyle={{ padding: '12px sm:padding-24' }}
+            className="shadow-lg rounded-xl border-2 border-[#d1fae5]"
+            bodyStyle={{ padding: '12px' }}
           >
             <div className="text-center">
               <p className="text-[#6b7280] text-xs sm:text-sm mb-1">
-                Joriy sahifa
+                {t('medicines.stat_current_page')}
               </p>
               <p className="text-xl sm:text-3xl font-bold text-[#0d9488]">
                 {data?.currentPage || 0}
@@ -471,12 +455,12 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
             </div>
           </Card>
           <Card
-            className="shadow-lg rounded-xl border-2 border-[#d1fae5] hover:border-[#10b981] transition-all"
-            bodyStyle={{ padding: '12px sm:padding-24' }}
+            className="shadow-lg rounded-xl border-2 border-[#d1fae5]"
+            bodyStyle={{ padding: '12px' }}
           >
             <div className="text-center">
               <p className="text-[#6b7280] text-xs sm:text-sm mb-1">
-                Sahifa hajmi
+                {t('medicines.stat_page_size')}
               </p>
               <p className="text-xl sm:text-3xl font-bold text-[#059669]">
                 {data?.pageSize || 0}
@@ -485,7 +469,6 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
           </Card>
         </div>
 
-        {/* Table */}
         <Card
           className="shadow-xl rounded-2xl border-2 border-[#d1fae5] overflow-hidden"
           bodyStyle={{ padding: 0 }}
@@ -500,11 +483,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
               current: data?.currentPage,
               showSizeChanger: true,
               size: 'small',
-              showTotal: (total, range) => `${range[0]}-${range[1]} / ${total}`,
-              className: 'px-4 py-4',
-              onChange: (page, pageSize) => {
-                setPagination({ page, pageSize });
-              },
+              onChange: (page, pageSize) => setPagination({ page, pageSize }),
               disabled: isEditMode,
             }}
             onRow={(record) => ({
@@ -513,8 +492,7 @@ const MedicinesTable: React.FC<MedicinesTableProps> = ({}) => {
                 ? ''
                 : 'cursor-pointer hover:bg-[#f0fdf4] transition-colors',
             })}
-            scroll={{ x: 1000 }} // Jadvalning gorizontal scrolli
-            className="[&_.ant-table-thead>tr>th]:bg-gradient-to-r [&_.ant-table-thead>tr>th]:from-[#d1fae5] [&_.ant-table-thead>tr>th]:to-[#cffafe] [&_.ant-table-thead>tr>th]:text-[#059669] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:border-b-2 [&_.ant-table-thead>tr>th]:border-[#10b981]"
+            scroll={{ x: 1000 }}
           />
         </Card>
       </div>

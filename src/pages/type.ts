@@ -210,7 +210,6 @@ export interface ISaleItem {
   updatedAt: string;
 }
 
-
 export interface IShift {
   id: string;
   startTime: string;
@@ -357,17 +356,40 @@ export interface IStatisticsResponse {
   }[];
 }
 
-export interface IAdmin{
-  id:string
-  fullName:string
-  username:string
-  avatarUrl:string
-  url:string
-  role:string
-  createdAt:string
-  updatedAt:string
-  isActive:boolean
-  isDeleted:boolean
-  deletedAt:string
-
+export interface IAdmin {
+  id: string;
+  fullName: string;
+  username: string;
+  avatarUrl: string;
+  url: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  deletedAt: string;
 }
+
+export interface IDocument {
+  id: string;
+  medicine: string;
+  clientFullname: string;
+  clientPhone: string;
+  passportNumber: string;
+  quantity: number;
+  date: string; // Backenddan keladigan sana
+  clientAddress: string;
+  createdAt: string;
+}
+
+export interface CreateDocumentDto {
+  date: string;
+  quantity: number;
+  clientPhone: string;
+  clientFullname: string;
+  clientAddress: string;
+  passportNumber: string;
+  medicine: string;
+}
+
+export type UpdateDocumentDto = Partial<CreateDocumentDto>;
