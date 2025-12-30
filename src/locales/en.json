@@ -30,7 +30,8 @@
     "daily_sales": "Daily Sales",
     "admins": "Admins",
     "sales_history": "Shifts History",
-    "documented_medicines": "Documented Medicines"
+    "documented_medicines": "Documented Medicines",
+    "supply_history": "Supply History"
   },
   "user_menu": {
     "profile": "Profile",
@@ -441,5 +442,28 @@
   "commonSearch": {
     "search_btn": "Search",
     "search_ph": "Search by name..."
+  },
+  "commonHistory": {
+    "total": "Total:",
+    "cancel": "Cancel",
+    "view": "View",
+    "somoni": "somoni",
+    "save": "Save",
+    "delete_confirm": "Are you sure you want to delete?"
+  },
+  "supply": {
+    "title": "Supply History",
+    "subtitle": "History of all loaded batches from Excel",
+    "batch_date": "Upload Date",
+    "invoice_id": "Invoice ID",
+    "total_items": "Items Count",
+    "table": {
+      "batch_details": "Batch Details",
+      "medicine_name": "Medicine Name",
+      "quantity": "Quantity",
+      "cost_price": "Cost Price",
+      "sell_price": "Selling Price",
+      "actions": "Actions"
+    }
   }
 }

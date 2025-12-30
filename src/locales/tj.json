@@ -30,7 +30,8 @@
     "daily_sales": "Фурӯши рӯзона",
     "admins": "Админҳо",
     "sales_history": "Таърихи сменаҳо",
-    "documented_medicines": "Доруҳои ҳуҷҷатӣ"
+    "documented_medicines": "Доруҳои ҳуҷҷатӣ",
+    "supply_history": "Таърихи доруи овардашуда"
   },
   "user_menu": {
     "profile": "Профил",
@@ -441,5 +442,28 @@
   "commonSearch": {
     "search_btn": "Ҷустуҷӯ",
     "search_ph": "Ҷустуҷӯ аз рӯи ном..."
+  },
+  "commonHistory": {
+    "total": "Ҷамъ:",
+    "cancel": "Бикор кардан",
+    "view": "Дидан",
+    "somoni": "сомонӣ",
+    "save": "Захира кардан",
+    "delete_confirm": "Оё воқеан мехоҳед ҳазф кунед?"
+  },
+  "supply": {
+    "title": "Таърихи омадани доруҳо",
+    "subtitle": "Таърихи ҳамаи партияҳои боршуда аз Excel",
+    "batch_date": "Санаи боргузорӣ",
+    "invoice_id": "ID Инвойс",
+    "total_items": "Миқдори доруҳо",
+    "table": {
+      "batch_details": "Тафсилоти партия",
+      "medicine_name": "Номи дору",
+      "quantity": "Миқдор",
+      "cost_price": "Нархи харид",
+      "sell_price": "Нархи фурӯш",
+      "actions": "Амалҳо"
+    }
   }
 }

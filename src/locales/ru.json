@@ -30,7 +30,8 @@
     "daily_sales": "Ежедневные продажи",
     "admins": "Админы",
     "sales_history": "История смен",
-    "documented_medicines": "Документированные лекарства"
+    "documented_medicines": "Документированные лекарства",
+    "supply_history": "История поставок"
   },
   "user_menu": {
     "profile": "Профиль",
@@ -440,6 +441,28 @@
   "commonSearch": {
     "search_btn": "Поиск",
     "search_ph": "Поиск по названию..."
+  },
+  "commonHistory": {
+    "total": "Итого:",
+    "cancel": "Отмена",
+    "view": "Просмотр",
+    "somoni": "сомони",
+    "save": "Сохранить",
+    "delete_confirm": "Вы действительно хотите удалить?"
+  },
+  "supply": {
+    "title": "История прихода лекарств",
+    "subtitle": "История всех загруженных партий из Excel",
+    "batch_date": "Дата загрузки",
+    "invoice_id": "ID Инвойса",
+    "total_items": "Кол-во лекарств",
+    "table": {
+      "batch_details": "Детали партии",
+      "medicine_name": "Название лекарства",
+      "quantity": "Количество",
+      "cost_price": "Закупочная цена",
+      "sell_price": "Цена продажи",
+      "actions": "Действия"
+    }
   }
 }
-

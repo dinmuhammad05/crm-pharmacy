@@ -30,7 +30,8 @@
     "daily_sales": "Kunlik savdo",
     "admins": "Adminlar",
     "sales_history": "Smenalar tarixi",
-    "documented_medicines": "Dokumentli dorilar"
+    "documented_medicines": "Dokumentli dorilar",
+    "supply_history": "Keltirilgan dorilar tarixi"
   },
   "user_menu": {
     "profile": "Profil",
@@ -441,5 +442,29 @@
   "commonSearch": {
     "search_btn": "Qidirish",
     "search_ph": "Nomi bo'yicha qidirish..."
+  },
+  "commonHistory": {
+    "total": "Jami:",
+    "cancel": "Bekor qilish",
+    "view": "Ko'rish",
+    "somoni": "somoni",
+    "save": "Saqlash",
+    "delete_confirm": "Haqiqatan ham o'chirmoqchimisiz?"
+  },
+  "supply": {
+    "title": "Keltirilgan dorilar tarixi",
+    "subtitle": "Excel orqali yuklangan dorilar partiyasi",
+    "batch_date": "Yuklangan sana",
+    "invoice_id": "Invoys ID",
+    "total_items": "Dorilar soni",
+    "table": {
+      "batch_details": "Partiya tafsilotlari",
+      "medicine_name": "Dori nomi",
+      "quantity": "Miqdori",
+      "cost_price": "Keltirilgan narxi",
+      "sell_price": "Sotuv narxi",
+      "actions": "Amallar"
+    }
   }
 }
+

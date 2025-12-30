@@ -20,6 +20,7 @@ const AdminManagementPage = lazy(() => import('./pages/admins-actions'));
 const ShiftHistoryPage = lazy(() => import('./pages/salesHistory'));
 const NotFound = lazy(() => import('./notfound'));
 const DocumentPage = lazy(() => import('./pages/document'));
+const SupplyHistoryPage = lazy(() => import('./pages/SupplyHistoryPage'));
 
 export const routes = [
   {
@@ -45,6 +46,7 @@ export const routes = [
       { path: 'admin-actions', element: <AdminManagementPage /> },
       { path: 'sales-history', element: <ShiftHistoryPage /> },
       { path: 'documents', element: <DocumentPage /> },
+      { path: 'supply-history', element: <SupplyHistoryPage /> },
     ],
   },
   {

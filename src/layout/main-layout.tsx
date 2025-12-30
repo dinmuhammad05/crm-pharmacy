@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import { useState } from 'react';
 import {
@@ -15,9 +13,18 @@ import {
   DollarCircleOutlined,
   DollarCircleFilled,
   HistoryOutlined,
-  GlobalOutlined, // Til ikonkasini qo'shdik
+  GlobalOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme, Avatar, Dropdown, Badge, Select } from 'antd';
+import {
+  Button,
+  Layout,
+  Menu,
+  theme,
+  Avatar,
+  Dropdown,
+  Badge,
+  Select,
+} from 'antd';
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { BASE_URL } from '../config';
@@ -26,18 +33,20 @@ import { useLogOut } from './service/useLogOut';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store/store';
 import { useTranslation } from 'react-i18next';
+import logo from '../assets/Gemini_Generated_Image_xsvaptxsvaptxsva-removebg-preview.png';
+import logo2 from '../assets/gpt.png';
 
 const { Header, Sider, Content } = Layout;
 
 const MainLayout: React.FC = () => {
-  const { t, i18n } = useTranslation(); // i18n ob'ektini ham oldik
+  const { t, i18n } = useTranslation();
   const { mutate } = useLogOut();
   const token = Cookies.get('token');
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const user = useSelector((state: RootState) => state.user.user);
-  
+
   const userImageUrl = user?.avatar?.startsWith('/')
     ? `${BASE_URL.DEV}${user.avatar}`
     : null;
@@ -50,7 +59,6 @@ const MainLayout: React.FC = () => {
     return <Navigate to="/login" replace={true} />;
   }
 
-  // Tilni almashtirish funksiyasi
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
@@ -103,7 +111,9 @@ const MainLayout: React.FC = () => {
     {
       key: '/create-medicines',
       icon: <Tablets className="w-4 h-4" />,
-      label: <span className="font-medium">{t('sidebar.create_medicines')}</span>,
+      label: (
+        <span className="font-medium">{t('sidebar.create_medicines')}</span>
+      ),
     },
     {
       key: '/sale',
@@ -138,7 +148,14 @@ const MainLayout: React.FC = () => {
     {
       key: '/documents',
       icon: <List />,
-      label: <span className="font-medium">{t('sidebar.documented_medicines')}</span>,
+      label: (
+        <span className="font-medium">{t('sidebar.documented_medicines')}</span>
+      ),
+    },
+    {
+      key: '/supply-history',
+      icon: <HistoryOutlined />,
+      label: <span className="font-medium">{t('sidebar.supply_history')}</span>,
     },
   ];
 
@@ -161,23 +178,19 @@ const MainLayout: React.FC = () => {
         width={240}
       >
         <div
-          className={`h-20 mx-4 my-6 flex items-center justify-center rounded-xl transition-all duration-300 ${
-            collapsed ? 'bg-white/10' : 'bg-white/15'
-          } backdrop-blur-sm border border-white/20 shadow-lg`}
+          className={`mx-4  flex items-center justify-center transition-all duration-300 ${
+            collapsed ? 'h-16' : 'h-24'
+          }`}
         >
-          <div className="flex items-center gap-3">
-            <div className="bg-linear-to-br from-[#14b8a6] to-[#06b6d4] p-2 rounded-lg shadow-md">
-              <MedicineBoxOutlined className="text-2xl text-white" />
-            </div>
-            {!collapsed && (
-              <div className="flex flex-col">
-                <h1 className="text-white font-bold text-lg leading-tight">
-                  Dinmuhammad
-                </h1>
-                <p className="text-[#a7f3d0] text-xs font-medium">{t('sidebar.pharmacy')}</p>
-              </div>
-            )}
-          </div>
+          {collapsed ? (
+            <img src={logo2} className="h-12 w-auto object-contain" />
+          ) : (
+            <img
+              src={logo}
+              alt="Turaxonovich Pharma System"
+              className="w-full h-auto object-contain px-2 "
+            />
+          )}
         </div>
 
         <Menu
@@ -226,16 +239,20 @@ const MainLayout: React.FC = () => {
           />
 
           <div className="flex items-center gap-4">
-            {/* TILLARNI ALMASHTIRUVCHI SELECT */}
             <Select
               defaultValue={i18n.language}
               onChange={changeLanguage}
               style={{ width: 120 }}
               bordered={false}
               className="language-select font-medium text-teal-700"
-              suffixIcon={<GlobalOutlined className="t text-[18px]" style={{color: '#0f766e'}} />}
+              suffixIcon={
+                <GlobalOutlined
+                  className="t text-[18px]"
+                  style={{ color: '#0f766e' }}
+                />
+              }
               options={[
-                { value: 'uz', label: '🇺🇿 O\'zbek' },
+                { value: 'uz', label: "🇺🇿 O'zbek" },
                 { value: 'ru', label: '🇷🇺 Русский' },
                 { value: 'tj', label: '🇹🇯 Тоҷикӣ' },
                 { value: 'en', label: '🇺🇸 English' },
@@ -252,7 +269,7 @@ const MainLayout: React.FC = () => {
                 </span>
               </div>
             )}
-            
+
             <Dropdown
               menu={{ items: userMenuItems }}
               placement="bottomRight"
@@ -297,7 +314,6 @@ const MainLayout: React.FC = () => {
       </Layout>
 
       <style>{`
-        /* Til selecti uchun qo'shimcha stil */
         .language-select .ant-select-selection-item {
           color: #0f766e !important;
           font-weight: 600;
@@ -334,8 +350,6 @@ const MainLayout: React.FC = () => {
           margin: 2px 0;
           transition: all 0.2s ease;
         }
-        
-        /* ... qolgan scrollbar stillari */
       `}</style>
     </Layout>
   );

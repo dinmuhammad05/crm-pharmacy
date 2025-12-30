@@ -393,3 +393,46 @@ export interface CreateDocumentDto {
 }
 
 export type UpdateDocumentDto = Partial<CreateDocumentDto>;
+
+
+
+export interface ISupplyHistoryItem {
+  id: string;
+  addedQuantity: number;
+  originalPrice: number;
+  price: number;
+  createdAt: string;
+  medicine: IGetListMedicine;
+}
+
+export interface ISupplyHistoryItem {
+  id: string;
+  addedQuantity: number;
+  originalPrice: number;
+  price: number;
+  createdAt: string;
+  medicine: IGetListMedicine;
+}
+
+// 2. Asosiy Invoys uchun interfeys
+export interface ISupplyInvoice {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  items: ISupplyHistoryItem[]; // Invoys ichidagi dorilar massivi
+}
+
+// 3. API-dan keladigan paginatsiya qilingan javob uchun interfeys
+export interface ISupplyInvoiceResponse {
+  data: ISupplyInvoice[];  // Backend-dan keladigan asosiy ro'yxat
+  totalElements: number;   // Paginatsiya uchun jami elementlar soni
+  currentPage: number;     // Hozirgi sahifa
+  pageSize: number;        // Sahifa hajmi
+}
+
+// Qo'shimcha: Query parametrlar uchun interfeys
+export interface SupplyQueryParams {
+  page?: number;
+  pageSize?: number;
+  query?: string;
+}
