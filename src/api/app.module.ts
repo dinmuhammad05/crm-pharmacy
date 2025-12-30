@@ -10,6 +10,7 @@ import { ExpenseModule } from './expense/expense.module';
 import { SalesModule } from './sales/sales.module';
 import { ShiftModule } from './shift/shift.module';
 import { StatistikaModule } from './statistika/statistika.module';
+import { DocumentModule } from './document/document.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { StatistikaModule } from './statistika/statistika.module';
     SalesModule,
     ShiftModule,
     StatistikaModule,
+    DocumentModule,
     
   ],
   controllers: [],

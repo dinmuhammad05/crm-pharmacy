@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Medicine } from './medicine.entity';
 import { BaseEntity } from './base.entity';
@@ -24,6 +25,14 @@ export class SupplyHistory extends BaseEntity {
   @ManyToOne(() => Medicine, (medicine) => medicine.histories)
   medicine: Medicine;
 
-  @ManyToOne(() => SupplyInvoice, (invoice) => invoice.items)
+  @ManyToOne(() => SupplyInvoice, (invoice) => invoice.items, {
+    onDelete: 'CASCADE',
+    nullable: true,
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'invoice_id' })
   invoice: SupplyInvoice;
 }
+
+
+

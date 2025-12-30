@@ -49,7 +49,6 @@ export class MedicineController {
           type: 'string',
           format: 'binary',
         },
-        
       },
     },
   })
@@ -113,6 +112,25 @@ export class MedicineController {
     return this.medicineService.findOneById(id, {
       relations: { histories: true },
     });
+  }
+
+  // supply historyni olish pagination hisoblab getSupplyHistoryWithPagination
+  @Get('supply-history')
+  @accessRoles(Roles.ADMIN, Roles.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Supply history olish' })
+  async getSupplyHistory(@Query() queryDto: PaginationQueryDto) {
+    let { page, pageSize, query } = queryDto;
+    return this.medicineService.getSuplyInvoiceWithPagination(
+      page,
+      pageSize,
+      query,
+    );
+  }
+
+  @Get('supply-history/:id')
+  @accessRoles(Roles.ADMIN, Roles.SUPER_ADMIN)
+  async getInvoiceDetail(@Param('id') id: string) {
+    return this.medicineService.getInvoiceById(id);
   }
 
   // dorilarni update qilish

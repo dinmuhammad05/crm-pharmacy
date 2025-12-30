@@ -4,7 +4,7 @@ import { Medicine } from 'src/core/entity/medicine.entity';
 import { SupplyHistory } from 'src/core/entity/supply-history.entity';
 import { Settings } from 'src/core/entity/settings.entity'; // Settings entity import qilinganiga ishonch hosil qiling
 import { BaseService } from 'src/infrastructure/baseService';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Raw, Repository } from 'typeorm';
 import * as xlsx from 'xlsx';
 import { CreateMedicineDto } from './dto/create-medicine.dto';
 import { UpdateMedicineDto } from './dto/update-medicine.dto';
@@ -12,6 +12,7 @@ import { successRes } from 'src/infrastructure/response/success.response';
 import { ISuccess } from 'src/common/interface/ISuccess';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { UpdateManyMedicineDto } from './dto/update-many-medicines';
+import { SupplyInvoice } from 'src/core/entity/supply-invoice.entity';
 
 // Excel qatorlari uchun interfeys
 interface ExcelRow {
@@ -33,6 +34,8 @@ export class MedicineService extends BaseService<
     private historyRepo: Repository<SupplyHistory>,
     @InjectRepository(Settings)
     private settingsRepo: Repository<Settings>,
+    @InjectRepository(SupplyInvoice)
+    private suplyInvoiceRepo: Repository<SupplyInvoice>,
     private dataSource: DataSource,
   ) {
     super(medicineRepo, 'medicine');
@@ -65,6 +68,9 @@ export class MedicineService extends BaseService<
     await queryRunner.startTransaction();
 
     try {
+      const supplyInvoice = await queryRunner.manager.save(
+        this.suplyInvoiceRepo.create(),
+      );
       let savedCount = 0;
 
       // 1. Sarlavhalarni aniqlab olamiz (qaysi ustun qayerda?)
@@ -124,7 +130,12 @@ export class MedicineService extends BaseService<
           expiryDate: expiryDate || '',
         };
 
-        await this.saveMedicineLogic(queryRunner, dto, currentMarkup);
+        await this.saveMedicineLogic(
+          queryRunner,
+          dto,
+          currentMarkup,
+          supplyInvoice,
+        );
         savedCount++;
       }
 
@@ -219,6 +230,7 @@ export class MedicineService extends BaseService<
     queryRunner: any,
     dto: CreateMedicineDto,
     defaultMarkup: number,
+    supplyInvoice?: SupplyInvoice,
   ) {
     const { name, quantity, originalPrice } = dto;
     // 1. Foizni aniqlash:
@@ -265,6 +277,7 @@ export class MedicineService extends BaseService<
       originalPrice: originalPrice,
       price: newSellingPrice, // Qaysi narxda sotuvga chiqqani
       medicine: savedMedicine,
+      invoice: supplyInvoice,
     });
     await queryRunner.manager.save(history);
 
@@ -314,7 +327,7 @@ export class MedicineService extends BaseService<
     });
   }
 
-  roundTo50(num: number): number {
+  private roundTo50(num: number): number {
     const intPart = Math.floor(num);
     const frac = num - intPart;
 
@@ -325,5 +338,46 @@ export class MedicineService extends BaseService<
     } else {
       return intPart + 1;
     }
+  }
+
+  // medicine.service.ts
+  async getSuplyInvoiceWithPagination(
+    page?: number,
+    pageSize?: number,
+    query?: string,
+  ) {
+    const currentPage = page ?? 1;
+    const limit = pageSize ?? 10;
+
+    // findAndCount [ma'lumotlar, jami_soni] ko'rinishida qaytaradi
+    const [data, total] = await this.suplyInvoiceRepo.findAndCount({
+      relations: { items: { medicine: true } },
+      order: { createdAt: 'DESC' },
+      skip: (currentPage - 1) * limit,
+      take: limit,
+      where: query
+        ? {
+            createdAt: Raw((alias) => `CAST(${alias} AS TEXT) ILIKE :value`, {
+              value: `%${query}%`,
+            }),
+          }
+        : undefined,
+    });
+
+    return {
+      data, // Hozirgi sahifadagi 10 ta invoys
+      totalElements: total, // Bazadagi jami invoyslar soni (masalan: 154)
+      currentPage,
+      pageSize: limit,
+    };
+  }
+
+  async getInvoiceById(id: string) {
+    const response = await this.suplyInvoiceRepo.findOne({
+      where: { id },
+      relations: { items: { medicine: true } },
+    });
+    console.log(response);
+    return response;
   }
 }
